@@ -1,5 +1,5 @@
 ---
-/** Upisi: koraci prijave i CTA prema sustavu e-Upisi (bez vlastite aplikacije). */
+/** Upisi i ispisi: koraci upisa, CTA prema sustavu e-Upisi (bez vlastite aplikacije) i ispis iz vrtića. */
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/sections/PageHeader.astro';
@@ -13,14 +13,15 @@ const docs = (await getCollection('dokumenti', (d) => d.data.category === 'Upisi
 );
 ---
 
-<BaseLayout title="Upisi" description={site.enrollment.intro}>
-  <PageHeader title="Upisi u vrtić" eyebrow="e-Upisi" lead={site.enrollment.intro}>
+<BaseLayout title="Upisi i ispisi" description={site.enrollment.intro}>
+  <PageHeader title="Upisi i ispisi" eyebrow="Upis i ispis djeteta" lead={site.enrollment.intro}>
     <div class="mt-7 flex flex-col gap-3 min-[26rem]:flex-row min-[26rem]:flex-wrap">
       <a href={site.enrollment.url} class="btn btn-accent" target="_blank" rel="noopener">
         Otvori e-Upise
         <Icon name="ExternalLink" size={20} />
         <span class="visually-hidden">(otvara se u novom prozoru)</span>
       </a>
+      <a href="#ispis" class="btn btn-outline">Ispis iz vrtića</a>
       <a href="#dokumenti-upisi" class="btn btn-outline">Natječaj i rezultati</a>
     </div>
   </PageHeader>
@@ -84,7 +85,34 @@ const docs = (await getCollection('dokumenti', (d) => d.data.category === 'Upisi
     </div>
   </section>
 
-  <section class="section" aria-labelledby="dokumenti-upisi">
+  <section id="ispis" class="section" aria-labelledby="ispis-naslov">
+    <div class="container-site grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+      <div>
+        <SectionHeading id="ispis-naslov" eyebrow="Ispis iz vrtića" title="Ispis djeteta, bez dolaska u tajništvo" lead={site.withdrawal.intro} />
+        <a href={site.withdrawal.href} class="btn btn-brand" data-reveal>
+          Ispuni zahtjev za ispis
+          <Icon name="ArrowRight" size={20} class="btn-arrow" />
+        </a>
+      </div>
+      <ol class="grid gap-3" aria-label="Postupak ispisa">
+        {
+          site.withdrawal.steps.map((s, i) => (
+            <li class="flex gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5" data-reveal style={`--reveal-i:${i}`}>
+              <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand font-heading font-semibold text-on-brand" aria-hidden="true">
+                {i + 1}
+              </span>
+              <span>
+                <span class="block font-heading text-lg font-semibold">{s.title}</span>
+                <span class="block text-muted">{s.text}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section bg-surface-2" aria-labelledby="dokumenti-upisi">
     <div class="container-site">
       <SectionHeading id="dokumenti-upisi" eyebrow="Dokumenti" title="Natječaj i obavijesti" />
       <ul class="grid gap-3">

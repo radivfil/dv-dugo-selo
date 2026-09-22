@@ -177,7 +177,7 @@ export const site = {
     { label: 'Početna', short: 'Početna', href: '/' },
     { label: 'O vrtiću', short: 'O vrtiću', href: '/o-vrticu' },
     { label: 'Programi i skupine', short: 'Programi', href: '/programi' },
-    { label: 'Upisi', short: 'Upisi', href: '/upisi' },
+    { label: 'Upisi i ispisi', short: 'Upisi', href: '/upisi' },
     { label: 'Kutak za roditelje', short: 'Roditelji', href: '/roditelji', highlight: true },
     { label: 'Novosti', short: 'Novosti', href: '/novosti' },
     { label: 'Galerija', short: 'Galerija', href: '/galerija' },
@@ -317,6 +317,19 @@ export const site = {
       { title: 'Prijavite se u e-Upise', text: 'Prijava ide preko sustava e-Građani. Odaberite vrtić, objekt i program.' },
       { title: 'Priložite dokumente', text: 'Učitajte samo dokumente koje sustav ne može sam dohvatiti, npr. potvrdu o zaposlenju.' },
       { title: 'Pratite rezultate', text: 'Rezultate i daljnje korake vidite u sustavu, a obavijest dobivate i e-poštom.' },
+    ],
+  },
+
+  // --- Ispis iz vrtića (stranica Upisi i ispisi + obrazac /roditelji/ispis-djeteta) ----
+  withdrawal: {
+    href: '/roditelji/ispis-djeteta',
+    noticeDays: 15,
+    intro:
+      'Zahtjev za ispis predaje se najmanje 15 dana prije posljednjeg dana u vrtiću. Cijeli postupak možete obaviti elektronički, bez dolaska u tajništvo, a roditeljska uplata obračunava se do posljednjeg dana boravka.',
+    steps: [
+      { title: 'Ispunite zahtjev', text: 'Podaci se odmah evidentiraju u tajništvu.' },
+      { title: 'Preuzmite i potpišite PDF', text: 'Zahtjev je unaprijed popunjen, treba ga samo potpisati.' },
+      { title: 'Učitajte potpisani sken', text: 'Fotografija mobitelom je dovoljna. Može i osobno u tajništvu.' },
     ],
   },
 

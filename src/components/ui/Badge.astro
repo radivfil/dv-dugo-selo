@@ -25,6 +25,14 @@ const { title, text, icon, class: className, ...rest } = Astro.props;
   }
   <span class="leading-snug">
     <strong class="font-heading font-semibold text-ink">{title}</strong>
-    {text && <span class="block text-muted sm:inline sm:before:content-['_·_']">{text}</span>}
+    {
+      text && (
+        <>
+          {' '}
+          <span class="hidden text-muted sm:inline" aria-hidden="true">·{' '}</span>
+          <span class="block text-muted sm:inline">{text}</span>
+        </>
+      )
+    }
   </span>
 </p>

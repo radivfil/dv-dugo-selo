@@ -95,15 +95,21 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
 
       <p class="mt-5 mb-3 font-semibold text-muted" aria-live="polite" data-result-count></p>
 
-      <div class="card overflow-x-auto">
-        <table class="adm-table w-full min-w-[68rem] text-left text-[0.95rem]">
+      <div class="card overflow-hidden">
+        <!-- ≥ 64rem: tablica s 5 stupaca bez vodoravnog scrolla; uže: svaka prijava je kartica -->
+        <table class="adm-table w-full text-left text-[0.95rem]">
           <caption class="visually-hidden">Popis prijava</caption>
+          <colgroup>
+            <col class="w-[11.5rem]" />
+            <col />
+            <col class="w-[10.5rem]" />
+            <col class="w-[30%]" />
+            <col class="w-[9.5rem]" />
+          </colgroup>
           <thead class="bg-surface-2">
             <tr>
-              <th scope="col" class="p-3">Zaprimljeno</th>
-              <th scope="col" class="p-3">Tip</th>
-              <th scope="col" class="p-3">Dijete</th>
-              <th scope="col" class="p-3">Roditelj</th>
+              <th scope="col" class="p-3">Prijava</th>
+              <th scope="col" class="p-3">Dijete i roditelj</th>
               <th scope="col" class="p-3">Datum</th>
               <th scope="col" class="p-3">Detalji</th>
               <th scope="col" class="p-3">Status</th>
@@ -149,10 +155,61 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
     font-weight: 400;
     opacity: 0.85;
   }
+  .adm-table {
+    table-layout: fixed;
+  }
   :global(.adm-table td) {
-    padding: 0.75rem;
+    padding: 0.85rem 0.75rem;
     vertical-align: top;
     border-top: 1px solid var(--c-line);
+  }
+  :global(.adm-table .cell-label) {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--c-muted);
+  }
+  /* Tablet i mobitel: svaka prijava je kartica (status gore desno), bez vodoravnog scrolla */
+  @media (max-width: 63.99rem) {
+    .adm-table colgroup,
+    .adm-table thead {
+      display: none;
+    }
+    .adm-table,
+    .adm-table tbody {
+      display: block;
+    }
+    :global(.adm-table tr) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.75rem 1rem;
+      padding: 1rem;
+      border-top: 1px solid var(--c-line);
+    }
+    :global(.adm-table tr:first-child) {
+      border-top: 0;
+    }
+    :global(.adm-table td) {
+      display: block;
+      padding: 0;
+      border: 0;
+    }
+    :global(.adm-table td[data-cell='prijava']) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    :global(.adm-table td[data-cell='status']) {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    :global(.adm-table td[data-cell='osobe']),
+    :global(.adm-table td[data-cell='datum']),
+    :global(.adm-table td[data-cell='detalji']) {
+      grid-column: 1 / -1;
+    }
+    :global(.adm-table td[data-no-date]),
+    :global(.adm-table td[data-cell='detalji']:empty) {
+      display: none;
+    }
   }
   :global(.type-pill) {
     display: inline-block;
@@ -208,7 +265,7 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
     type Submission,
     type SubmissionStatus,
   } from '../../lib/submissions';
-  import { formatDateShort } from '../../lib/format';
+  import { formatDateShort, keepHyphenatedWords } from '../../lib/format';
 
   const DETAIL_LABELS: Record<string, string> = {
     location: 'Objekt',
@@ -228,7 +285,7 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
   const el = (tag: string, cls = '', text = '') => {
     const e = document.createElement(tag);
     if (cls) e.className = cls;
-    if (text) e.textContent = text;
+    if (text) e.textContent = keepHyphenatedWords(text);
     return e;
   };
 
@@ -246,45 +303,71 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
     );
   }
 
+  /** Što datum znači za pojedini tip prijave (prikazuje se iznad datuma) */
+  const DATE_LABELS: Record<string, string> = { izostanak: 'Izostanak', ispis: 'Posljednji dan' };
+
+  /** E-adresa se smije prelomiti samo iza znaka @, nikad usred riječi */
+  function emailLink(address: string) {
+    const a = el('a', 'inline-flex min-h-11 items-center text-sm') as HTMLAnchorElement;
+    a.href = `mailto:${address}`;
+    const [local, domain] = address.split('@');
+    if (domain === undefined) a.textContent = address;
+    else a.append(keepHyphenatedWords(`${local}@`), document.createElement('wbr'), keepHyphenatedWords(domain));
+    return a;
+  }
+
   function renderRow(s: Submission) {
     const tr = document.createElement('tr');
+    const cell = (name: string, cls = '') => {
+      const td = el('td', cls);
+      td.dataset.cell = name;
+      tr.append(td);
+      return td;
+    };
 
+    // Prijava: tip i vrijeme zaprimanja
     const created = new Date(s.created_at);
-    tr.append(el('td', 'whitespace-nowrap', `${formatDateShort(created)} ${created.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' })}`));
+    const typeTd = cell('prijava');
+    typeTd.append(
+      el('span', `type-pill type-${s.type}`, TYPE_LABELS[s.type]),
+      el('span', 'mt-1 block text-sm whitespace-nowrap text-muted', `${formatDateShort(created)}, ${created.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' })}`),
+    );
 
-    const typeTd = el('td');
-    typeTd.append(el('span', `type-pill type-${s.type}`, TYPE_LABELS[s.type]));
-    tr.append(typeTd);
+    // Dijete i roditelj
+    const peopleTd = cell('osobe');
+    if (s.child_name) peopleTd.append(el('span', 'block font-semibold', s.child_name));
+    peopleTd.append(el('span', s.child_name ? 'block text-sm' : 'block font-semibold', s.parent_name), emailLink(s.parent_contact));
 
-    tr.append(el('td', 'font-semibold', s.child_name ?? '—'));
+    // Datum s objašnjenjem
+    const dateTd = cell('datum');
+    if (s.date) {
+      dateTd.append(el('span', 'cell-label', DATE_LABELS[s.type] ?? 'Datum'));
+      dateTd.append(el('span', 'block whitespace-nowrap', formatDateShort(s.date)));
+      if (s.details.date_to) dateTd.append(el('span', 'block whitespace-nowrap', `do ${formatDateShort(s.details.date_to)}`));
+    } else {
+      dateTd.append(el('span', 'text-muted', '—'));
+      dateTd.dataset.noDate = 'true';
+    }
 
-    const parentTd = el('td');
-    parentTd.append(el('span', 'block', s.parent_name));
-    const mail = el('a', 'flex min-h-11 items-center text-sm whitespace-nowrap', s.parent_contact) as HTMLAnchorElement;
-    mail.href = `mailto:${s.parent_contact}`;
-    parentTd.append(mail);
-    tr.append(parentTd);
-
-    const dateText = s.date ? formatDateShort(s.date) + (s.details.date_to ? ` – ${formatDateShort(s.details.date_to)}` : '') : '—';
-    tr.append(el('td', 'whitespace-nowrap', dateText));
-
-    const detailsTd = el('td', 'min-w-[16rem] max-w-[24rem]');
+    // Detalji: kratki sažetak odmah vidljiv, ostalo na klik
+    const detailsTd = cell('detalji');
     const entries = Object.entries(s.details).filter(([k]) => k !== 'date_to');
+    const summaryText = s.details.subject ?? [s.details.location, s.details.reason].filter(Boolean).join(' · ');
     if (entries.length) {
       const details = el('details');
-      details.append(el('summary', 'cursor-pointer font-semibold text-brand-ink', `Prikaži (${entries.length})`));
-      const dl = el('dl', 'mt-2 grid gap-1 text-sm');
+      const summary = el('summary', 'flex min-h-11 cursor-pointer items-center gap-2');
+      summary.append(el('span', 'min-w-0 flex-1', summaryText || 'Detalji'), el('span', 'text-sm font-semibold whitespace-nowrap text-brand-ink', 'Više'));
+      details.append(summary);
+      const dl = el('dl', 'mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-sm');
       for (const [k, v] of entries) {
-        const row = el('div');
         const isDate = /^\d{4}-\d{2}-\d{2}$/.test(v);
-        row.append(el('dt', 'font-bold', DETAIL_LABELS[k] ?? k), el('dd', 'text-muted whitespace-pre-line', isDate ? formatDateShort(v) : v));
-        dl.append(row);
+        dl.append(el('dt', 'font-bold', DETAIL_LABELS[k] ?? k), el('dd', 'text-muted whitespace-pre-line', isDate ? formatDateShort(v) : v));
       }
       details.append(dl);
       detailsTd.append(details);
     }
     if (s.attachment_path) {
-      const btn = el('button', 'mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-brand-ink underline', 'Potpisani sken') as HTMLButtonElement;
+      const btn = el('button', 'inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-brand-ink underline', 'Potpisani sken') as HTMLButtonElement;
       btn.type = 'button';
       btn.addEventListener('click', async () => {
         const url = await getAttachmentUrl(s.attachment_path!);
@@ -293,9 +376,8 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
       });
       detailsTd.append(btn);
     }
-    tr.append(detailsTd);
 
-    const statusTd = el('td');
+    const statusTd = cell('status');
     const select = el('select', 'status-select') as HTMLSelectElement;
     select.setAttribute('aria-label', `Status prijave: ${s.child_name ?? s.parent_name}`);
     for (const [value, label] of Object.entries(STATUS_LABELS)) {

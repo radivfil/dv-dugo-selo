@@ -13,18 +13,14 @@ import Icon from '../../components/ui/Icon.astro';
 import { site } from '../../config/site';
 
 const locations = site.locations.map((l) => l.name);
-const steps = [
-  { title: 'Ispunite zahtjev', text: 'Podaci se odmah evidentiraju u tajništvu.' },
-  { title: 'Preuzmite i potpišite PDF', text: 'Zahtjev je unaprijed popunjen, treba ga samo potpisati.' },
-  { title: 'Učitajte potpisani sken', text: 'Fotografija mobitelom je dovoljna. Može i osobno u tajništvu.' },
-];
+const steps = site.withdrawal.steps;
 ---
 
 <BaseLayout title="Ispis djeteta" description="Elektronički zahtjev za ispis djeteta iz vrtića s PDF-om za potpis i učitavanjem skena.">
   <PageHeader
     title="Ispis djeteta iz vrtića"
     crumbs={[{ label: 'Kutak za roditelje', href: '/roditelji' }]}
-    lead="Zahtjev za ispis predaje se najmanje 15 dana prije posljednjeg dana u vrtiću. Cijeli postupak možete obaviti ovdje, bez dolaska u tajništvo."
+    lead={site.withdrawal.intro}
   />
 
   <section class="section">
