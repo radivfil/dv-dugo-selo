@@ -1,0 +1,133 @@
+# ---------------------------------------------------------------------------
+# Sveltia CMS: konfiguracija sadržaja koji tajništvo samo uređuje.
+# Polja moraju odgovarati shemama u src/content.config.ts.
+#
+# Prijava:
+#  - lokalno (demo): otvori http://localhost:4321/admin/ u Chromeu ili Edgeu,
+#    odaberi "Work with Local Repository" i odaberi mapu projekta;
+#  - produkcija: GitHub prijava (backend ispod) ili Netlify/Cloudflare OAuth posrednik.
+# ---------------------------------------------------------------------------
+backend:
+  name: github
+  repo: radivfil/dv-dugo-selo
+  branch: main
+  commit_messages:
+    create: 'Sadržaj: dodano {{collection}} „{{slug}}”'
+    update: 'Sadržaj: izmijenjeno {{collection}} „{{slug}}”'
+    delete: 'Sadržaj: obrisano {{collection}} „{{slug}}”'
+    uploadMedia: 'Mediji: učitano „{{path}}”'
+    deleteMedia: 'Mediji: obrisano „{{path}}”'
+
+site_url: https://radivfil.github.io/dv-dugo-selo # TODO: prava domena
+display_url: https://radivfil.github.io/dv-dugo-selo
+logo_url: /favicon.svg
+
+media_folder: public/uploads
+public_folder: /uploads
+
+slug:
+  encoding: ascii
+  clean_accents: true
+
+collections:
+  # --- Novosti ---------------------------------------------------------------
+  - name: novosti
+    label: Novosti
+    label_singular: Novost
+    description: Obavijesti i događanja. Najnovije tri prikazuju se na početnoj stranici.
+    folder: src/content/novosti
+    create: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    sortable_fields: [date, title]
+    summary: '{{title}} ({{date}})'
+    fields:
+      - { name: title, label: Naslov, widget: string }
+      - { name: date, label: Datum objave, widget: datetime, time_format: false, format: 'YYYY-MM-DD' }
+      - { name: summary, label: Sažetak (1–2 rečenice), widget: text }
+      - { name: image, label: Fotografija, widget: image, required: false }
+      - { name: imageAlt, label: Opis fotografije za slijepe i slabovidne, widget: string, required: false, hint: 'Kratko opišite što je na fotografiji.' }
+      - { name: body, label: Tekst, widget: markdown }
+
+  # --- Jelovnik --------------------------------------------------------------
+  - name: jelovnik
+    label: Jelovnik
+    files:
+      - name: tjedan
+        label: Tjedni jelovnik
+        file: src/content/jelovnik/tjedan.json
+        fields:
+          - { name: week, label: Tjedan (npr. 22. – 26. rujna 2026.), widget: string }
+          - { name: note, label: Napomena, widget: text, required: false }
+          - name: days
+            label: Dani
+            widget: list
+            allow_add: true
+            summary: '{{day}}'
+            fields:
+              - { name: day, label: Dan, widget: select, options: [Ponedjeljak, Utorak, Srijeda, Četvrtak, Petak] }
+              - { name: breakfast, label: Doručak, widget: string }
+              - { name: lunch, label: Ručak, widget: string }
+              - { name: snack, label: Užina, widget: string }
+
+  # --- Dokumenti -------------------------------------------------------------
+  - name: dokumenti
+    label: Dokumenti
+    label_singular: Dokument
+    description: PDF dokumenti za stranicu „Dokumenti i transparentnost”.
+    folder: src/content/dokumenti
+    extension: yml
+    format: yaml
+    create: true
+    slug: '{{slug}}'
+    sortable_fields: [date, title, category]
+    summary: '{{title}} · {{category}}'
+    view_groups:
+      - { label: Kategorija, field: category }
+    fields:
+      - { name: title, label: Naziv dokumenta, widget: string }
+      - name: category
+        label: Kategorija
+        widget: select
+        options:
+          - Statut i pravilnici
+          - Financijska izvješća
+          - Javna nabava
+          - Upravno vijeće
+          - Upisi
+          - Pravo na pristup informacijama
+      - { name: date, label: Datum objave, widget: datetime, time_format: false, format: 'YYYY-MM-DD' }
+      - name: file
+        label: PDF datoteka
+        widget: file
+        media_folder: /public/dokumenti
+        public_folder: /dokumenti
+        accept: application/pdf
+      - { name: description, label: Kratak opis, widget: text, required: false }
+
+  # --- Galerija --------------------------------------------------------------
+  - name: galerija
+    label: Galerija
+    label_singular: Fotografija
+    description: Objavljujte samo fotografije za koje postoji pisana suglasnost roditelja.
+    folder: src/content/galerija
+    extension: yml
+    format: yaml
+    create: true
+    slug: '{{slug}}'
+    sortable_fields: [date, title]
+    summary: '{{title}} · {{category}}'
+    fields:
+      - { name: title, label: Naslov, widget: string }
+      - { name: date, label: Datum, widget: datetime, time_format: false, format: 'YYYY-MM-DD' }
+      - { name: category, label: Kategorija, widget: select, options: [Eko vrt, Svečanosti, Izleti, Svakodnevica] }
+      - { name: image, label: Fotografija, widget: image, required: false }
+      - { name: alt, label: Opis fotografije za slijepe i slabovidne, widget: string }
+      - name: size
+        label: Veličina u mreži
+        widget: select
+        default: normal
+        options:
+          - { label: Obična, value: normal }
+          - { label: Široka, value: wide }
+          - { label: Visoka, value: tall }
+          - { label: Velika, value: large }

@@ -1,0 +1,57 @@
+---
+/**
+ * NewsList — popis novosti iz kolekcije "novosti" (uređuje se kroz CMS).
+ * Prva novost je istaknuta (veća, s fotografijom), ostale su u stupcu uz nju.
+ */
+import type { CollectionEntry } from 'astro:content';
+import Photo from '../ui/Photo.astro';
+import { formatDate } from '../../lib/format';
+
+interface Props {
+  items: CollectionEntry<'novosti'>[];
+  featured?: boolean;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { items, featured = true, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+const [first, ...others] = items;
+---
+
+<div class:list={['grid gap-6', featured && 'lg:grid-cols-[1.25fr_1fr]']}>
+  {
+    featured && first && (
+      <article class="card interactive-card relative flex flex-col overflow-hidden" data-reveal>
+        <Photo src={first.data.image} alt={first.data.imageAlt ?? first.data.title} ratio="16 / 9" class="!rounded-none" />
+        <div class="flex flex-1 flex-col gap-3 p-6">
+          <time datetime={first.data.date.toISOString()} class="text-sm font-semibold text-muted">
+            {formatDate(first.data.date)}
+          </time>
+          <Heading class="text-2xl">
+            <a href={`/novosti/${first.id}`} class="text-ink no-underline after:absolute after:inset-0 hover:underline">
+              {first.data.title}
+            </a>
+          </Heading>
+          <p class="text-muted">{first.data.summary}</p>
+        </div>
+      </article>
+    )
+  }
+  <div class="grid content-start gap-4">
+    {
+      (featured ? others : items).map((item, i) => (
+        <article class="card interactive-card relative p-6" data-reveal style={`--reveal-i:${i + 1}`}>
+          <time datetime={item.data.date.toISOString()} class="text-sm font-semibold text-muted">
+            {formatDate(item.data.date)}
+          </time>
+          <Heading class="mt-1 text-xl">
+            <a href={`/novosti/${item.id}`} class="text-ink no-underline after:absolute after:inset-0 hover:underline">
+              {item.data.title}
+            </a>
+          </Heading>
+          <p class="mt-2 text-muted">{item.data.summary}</p>
+        </article>
+      ))
+    }
+  </div>
+</div>

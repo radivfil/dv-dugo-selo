@@ -1,0 +1,110 @@
+---
+/** Galerija: bento grid fotografija iz kolekcije "galerija", filtar po kategoriji, lazy loading. */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/sections/PageHeader.astro';
+import Photo from '../components/ui/Photo.astro';
+import { formatDate } from '../lib/format';
+
+const items = (await getCollection('galerija')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const categories = [...new Set(items.map((i) => i.data.category))];
+
+const sizeClass = {
+  normal: '',
+  wide: 'sm:col-span-2',
+  tall: 'row-span-2',
+  large: 'sm:col-span-2 row-span-2',
+} as const;
+---
+
+<BaseLayout title="Galerija" description="Fotografije iz svakodnevice, eko vrta, izleta i svečanosti Dječjeg vrtića Dugo Selo.">
+  <PageHeader
+    title="Galerija"
+    eyebrow="Iz naših skupina"
+    lead="Trenuci iz vrta, sa izleta i svečanosti. Objavljujemo samo fotografije za koje su roditelji dali pisanu suglasnost."
+  />
+
+  <section class="section" aria-label="Fotografije">
+    <div class="container-site">
+      <div class="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filtriraj po kategoriji" data-gallery-filter>
+        <button type="button" class="filter-btn" aria-pressed="true" data-category="">Sve</button>
+        {
+          categories.map((c) => (
+            <button type="button" class="filter-btn" aria-pressed="false" data-category={c}>
+              {c}
+            </button>
+          ))
+        }
+      </div>
+      <p class="visually-hidden" aria-live="polite" data-gallery-status></p>
+
+      <ul class="grid auto-rows-[minmax(11rem,auto)] grid-flow-dense grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          items.map((item, i) => (
+            <li class:list={['gallery-item', sizeClass[item.data.size]]} data-category={item.data.category} data-reveal style={`--reveal-i:${i % 4}`}>
+              <figure class="relative h-full">
+                <Photo src={item.data.image} alt={item.data.alt} ratio="auto" class="h-full min-h-44" showAlt={false} />
+                <figcaption class="absolute inset-x-2 bottom-2 rounded-[var(--radius-control)] bg-surface px-3 py-2 text-sm">
+                  <span class="block font-semibold">{item.data.title}</span>
+                  <span class="block text-muted">
+                    {item.data.category} · {formatDate(item.data.date)}
+                  </span>
+                </figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .filter-btn {
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 2px solid var(--c-line);
+    background: var(--c-surface);
+    color: var(--c-ink);
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      background-color 160ms,
+      border-color 160ms;
+  }
+  .filter-btn:hover {
+    border-color: var(--c-brand);
+  }
+  .filter-btn[aria-pressed='true'] {
+    background: var(--c-brand);
+    border-color: var(--c-brand);
+    color: var(--c-onBrand);
+  }
+</style>
+
+<script>
+  function initGallery() {
+    const group = document.querySelector('[data-gallery-filter]');
+    if (!group) return;
+    const status = document.querySelector('[data-gallery-status]')!;
+    const items = document.querySelectorAll<HTMLElement>('.gallery-item');
+    group.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-category]');
+      if (!btn) return;
+      const cat = btn.dataset.category!;
+      group.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      let shown = 0;
+      items.forEach((el) => {
+        const match = !cat || el.dataset.category === cat;
+        el.hidden = !match;
+        if (match) {
+          el.classList.add('is-visible');
+          shown++;
+        }
+      });
+      status.textContent = `Prikazano fotografija: ${shown}`;
+    });
+  }
+  document.addEventListener('astro:page-load', initGallery);
+</script>

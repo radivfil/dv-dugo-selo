@@ -1,0 +1,65 @@
+---
+/** Obrazac: prijava izostanka djeteta → tablica submissions (tip "izostanak") + e-mail obavijest (webhook). */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/sections/PageHeader.astro';
+import FormShell from '../../components/forms/FormShell.astro';
+import FormField from '../../components/forms/FormField.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { site } from '../../config/site';
+
+const locations = site.locations.map((l) => l.name);
+---
+
+<BaseLayout title="Prijava izostanka" description="Prijavite izostanak djeteta iz vrtića elektronički, bez telefonskog poziva.">
+  <PageHeader
+    title="Prijava izostanka"
+    crumbs={[{ label: 'Kutak za roditelje', href: '/roditelji' }]}
+    lead={`Prijava stiže odgojiteljima skupine i računovodstvu. Ako izostanak prijavite do ${site.parents.absenceDeadline} sati, obrok se taj dan ne obračunava.`}
+  />
+
+  <section class="section">
+    <div class="container-site grid gap-8 lg:grid-cols-[1fr_20rem]">
+      <FormShell
+        type="izostanak"
+        submitLabel="Pošalji prijavu"
+        successTitle="Izostanak je prijavljen"
+        successText="Odgojitelji skupine i računovodstvo dobivaju obavijest e-poštom. Ako se plan promijeni, pošaljite novu prijavu ili nazovite vrtić.">
+        <FormField name="child_name" label="Ime i prezime djeteta" map="child_name" required autocomplete="off" class="sm:col-span-2" />
+        <FormField name="location" label="Objekt" type="select" options={locations} required />
+        <FormField name="group" label="Skupina" hint="Npr. Leptirići" autocomplete="off" />
+        <FormField
+          name="date"
+          label="Izostanak od"
+          type="date"
+          map="date"
+          required
+          data-min-today
+          data-min-message="Izostanak se ne može prijaviti unatrag."
+        />
+        <FormField name="date_to" label="Izostanak do" type="date" after="date" hint="Ostavite prazno ako ne znate." data-min-today data-min-message="Datum završetka ne može biti prije datuma početka." />
+        <FormField name="reason" label="Razlog" type="select" options={['Bolest', 'Obiteljski razlozi', 'Godišnji odmor', 'Ostalo']} required class="sm:col-span-2" />
+        <FormField name="note" label="Napomena za odgojitelje" type="textarea" rows={3} class="sm:col-span-2" hint="Npr. zarazna bolest o kojoj treba obavijestiti ostale roditelje." />
+        <FormField name="parent_name" label="Ime i prezime roditelja" map="parent_name" required autocomplete="name" />
+        <FormField name="parent_contact" label="E-pošta" type="email" map="parent_contact" required autocomplete="email" />
+        <FormField name="phone" label="Telefon" type="tel" autocomplete="tel" />
+      </FormShell>
+
+      <aside class="grid content-start gap-4" aria-label="Korisne informacije">
+        <div class="rounded-[var(--radius-card)] border border-line bg-surface-2 p-5">
+          <h2 class="flex items-center gap-2 text-lg"><Icon name="Clock" size={20} class="text-brand-ink" />Rok za prijavu</h2>
+          <p class="mt-2 text-muted">Do {site.parents.absenceDeadline} sati za isti dan. Kasnije prijave vrijede od sljedećeg dana.</p>
+        </div>
+        <div class="rounded-[var(--radius-card)] border border-line bg-surface-2 p-5">
+          <h2 class="flex items-center gap-2 text-lg"><Icon name="Stethoscope" size={20} class="text-brand-ink" />Povratak nakon bolesti</h2>
+          <p class="mt-2 text-muted">Nakon bolesti duže od tri dana donesite liječničku potvrdu da dijete može u kolektiv.</p>
+        </div>
+        <div class="rounded-[var(--radius-card)] border border-line bg-surface-2 p-5">
+          <h2 class="flex items-center gap-2 text-lg"><Icon name="Phone" size={20} class="text-brand-ink" />Hitno?</h2>
+          <p class="mt-2 text-muted">
+            Nazovite <a href={`tel:${site.contact.phoneHref}`} class="font-semibold">{site.contact.phone}</a>.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,157 @@
+---
+/** Početna: hero, brze poveznice, lokacije, programi, kutak za roditelje, novosti, upisi. */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import QuickLinks from '../components/sections/QuickLinks.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import LocationList from '../components/sections/LocationList.astro';
+import ProgramBento from '../components/sections/ProgramBento.astro';
+import NewsList from '../components/sections/NewsList.astro';
+import CtaBand from '../components/sections/CtaBand.astro';
+import Icon from '../components/ui/Icon.astro';
+import { site } from '../config/site';
+
+const news = (await getCollection('novosti')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 3);
+const [menu] = await getCollection('jelovnik');
+const tip = site.parents.tips[0];
+---
+
+<BaseLayout>
+  <Hero
+    {...site.hero}
+    badge={site.badge}
+    facts={[
+      { value: `${site.locations.length} objekta`, label: 'u Dugom Selu' },
+      { value: site.hours[0].value.split(', ')[1], label: 'rad s djecom' },
+    ]}
+  />
+
+  <QuickLinks links={site.quickLinks} />
+
+  <!-- O vrtiću i lokacije -->
+  <section class="section" aria-labelledby="o-nama">
+    <div class="container-site grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+      <div>
+        <SectionHeading id="o-nama" eyebrow="O vrtiću" title="Jedan vrtić, tri kuće u istom gradu" lead={site.about.intro} />
+        <a href="/o-vrticu" class="btn btn-outline" data-reveal>
+          Upoznajte vrtić
+          <Icon name="ArrowRight" size={20} class="btn-arrow" />
+        </a>
+      </div>
+      <LocationList locations={site.locations} variant="compact" />
+    </div>
+  </section>
+
+  <!-- Programi -->
+  <section class="section bg-surface-2" aria-labelledby="programi">
+    <div class="container-site">
+      <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <SectionHeading
+          id="programi"
+          eyebrow="Programi i skupine"
+          title="Program za svaku dob, od prvog koraka do škole"
+          class="md:!mb-10"
+        />
+        <a href="/programi" class="btn btn-outline mb-8 self-start md:mb-10 md:self-auto">
+          Svi programi
+          <Icon name="ArrowRight" size={20} class="btn-arrow" />
+        </a>
+      </div>
+      <ProgramBento programs={site.programs} compact />
+    </div>
+  </section>
+
+  <!-- Kutak za roditelje -->
+  <section class="section" aria-labelledby="roditelji">
+    <div class="container-site grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+      <div class="on-brand flex flex-col gap-5 rounded-[var(--radius-card)] bg-brand p-7 text-on-brand md:p-10" data-reveal>
+        <p class="eyebrow !text-accent">Kutak za roditelje</p>
+        <h2 id="roditelji" class="text-on-brand">Dijete danas ostaje kod kuće?</h2>
+        <p class="max-w-[52ch] text-on-brand/90">
+          Prijavite izostanak do {site.parents.absenceDeadline} sati i obrok se ne obračunava. Prijava stiže izravno odgojiteljima skupine i
+          računovodstvu, bez telefonskih poziva.
+        </p>
+        <div class="mt-auto flex flex-col gap-3 min-[26rem]:flex-row min-[26rem]:flex-wrap">
+          <a href="/roditelji/prijava-izostanka" class="btn btn-accent">
+            Prijavi izostanak
+            <Icon name="ArrowRight" size={20} class="btn-arrow" />
+          </a>
+          <a href="/roditelji" class="btn btn-on-brand">Sve za roditelje</a>
+        </div>
+      </div>
+
+      <div class="grid gap-6">
+        {
+          menu && (
+            <div class="card p-6" data-reveal style="--reveal-i:1" data-menu-today>
+              {/* Stranica je statična: skripta ispod prikazuje dan koji je danas (vikendom ponedjeljak). */}
+              {menu.data.days.map((d, i) => (
+                <div data-day={i} hidden={i !== 0}>
+                  <div class="flex flex-wrap items-center justify-between gap-x-3">
+                    <h3 class="flex items-center gap-2 text-lg whitespace-nowrap">
+                      <Icon name="Utensils" size={20} class="text-brand-ink" />
+                      Jelovnik: {d.day.toLowerCase()}
+                    </h3>
+                    <a href="/roditelji#jelovnik" class="inline-flex min-h-11 items-center text-sm font-semibold">Cijeli tjedan</a>
+                  </div>
+                  <dl class="mt-3 grid gap-2 text-[0.95rem]">
+                    <div>
+                      <dt class="font-bold">Doručak</dt>
+                      <dd class="text-muted">{d.breakfast}</dd>
+                    </div>
+                    <div>
+                      <dt class="font-bold">Ručak</dt>
+                      <dd class="text-muted">{d.lunch}</dd>
+                    </div>
+                  </dl>
+                </div>
+              ))}
+            </div>
+          )
+        }
+        <figure class="rounded-[var(--radius-card)] border border-accent bg-accent-soft p-6" data-reveal style="--reveal-i:2">
+          <p class="eyebrow !text-accent-ink">Savjet stručnog tima</p>
+          <blockquote class="mt-2">
+            <p class="font-heading text-lg font-semibold">{tip.title}</p>
+            <p class="mt-1 text-muted">{tip.text}</p>
+          </blockquote>
+          <figcaption class="mt-3 text-sm font-semibold text-accent-ink">{tip.author}</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Novosti -->
+  <section class="section bg-surface-2" aria-labelledby="novosti">
+    <div class="container-site">
+      <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <SectionHeading id="novosti" eyebrow="Novosti" title="Što se događa u vrtiću" class="md:!mb-10" />
+        <a href="/novosti" class="btn btn-outline mb-8 self-start md:mb-10 md:self-auto">
+          Sve novosti
+          <Icon name="ArrowRight" size={20} class="btn-arrow" />
+        </a>
+      </div>
+      <NewsList items={news} />
+    </div>
+  </section>
+
+  <div class="section">
+    <CtaBand
+      title="Upisi za novu pedagošku godinu"
+      text="Zahtjev za upis predaje se elektronički kroz sustav e-Upisi. Javni natječaj objavljujemo u proljeće, na ovoj stranici i na oglasnim pločama."
+      cta={{ label: 'Kako se upisati', href: '/upisi' }}
+      icon="ClipboardPen"
+    />
+  </div>
+</BaseLayout>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const box = document.querySelector('[data-menu-today]');
+    if (!box) return;
+    const day = new Date().getDay();
+    const index = day >= 1 && day <= 5 ? day - 1 : 0;
+    box.querySelectorAll<HTMLElement>('[data-day]').forEach((el) => (el.hidden = el.dataset.day !== String(index)));
+  });
+</script>

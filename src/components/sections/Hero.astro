@@ -1,0 +1,68 @@
+---
+/**
+ * Hero — uvodna sekcija početne stranice: naslov, uvod, dva CTA gumba, statusni badge
+ * i fotografija s kratkim podacima (broj objekata, radno vrijeme).
+ *
+ * Proširenje animacijom: slot "motion" prima island komponentu (npr. GSAP ili Framer Motion)
+ * koja se učitava tek kad hero uđe u pogled, bez izmjena ovog predloška:
+ *   <Hero ...><HeroMotion slot="motion" client:visible /></Hero>
+ */
+import Icon from '../ui/Icon.astro';
+import Photo from '../ui/Photo.astro';
+import Badge from '../ui/Badge.astro';
+
+interface Cta {
+  label: string;
+  href: string;
+}
+interface Props {
+  eyebrow?: string;
+  title: string;
+  text: string;
+  primaryCta: Cta;
+  secondaryCta?: Cta;
+  image?: string;
+  imageAlt: string;
+  badge?: { title: string; text?: string; icon?: string };
+  facts?: { value: string; label: string }[];
+}
+
+const { eyebrow, title, text, primaryCta, secondaryCta, image, imageAlt, badge, facts = [] } = Astro.props;
+---
+
+<section class="hero relative overflow-hidden" aria-labelledby="hero-naslov">
+  <div class="container-site grid items-center gap-10 pt-10 pb-16 md:pt-14 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pb-24">
+    <div class="relative z-10">
+      {eyebrow && <p class="eyebrow mb-4" data-reveal>{eyebrow}</p>}
+      <h1 id="hero-naslov" class="max-w-[20ch]" data-reveal style="--reveal-i:1">{title}</h1>
+      <p class="lead mt-5" data-reveal style="--reveal-i:2">{text}</p>
+      <div class="mt-8 flex flex-col gap-3 min-[26rem]:flex-row min-[26rem]:flex-wrap" data-reveal style="--reveal-i:3">
+        <a href={primaryCta.href} class="btn btn-accent">
+          {primaryCta.label}
+          <Icon name="ArrowRight" size={20} class="btn-arrow" />
+        </a>
+        {secondaryCta && <a href={secondaryCta.href} class="btn btn-outline">{secondaryCta.label}</a>}
+      </div>
+      {badge && <Badge {...badge} class="mt-8" data-reveal style="--reveal-i:4" />}
+    </div>
+
+    <div class="relative w-full max-w-lg justify-self-center lg:max-w-none" data-reveal style="--reveal-i:2">
+      <!-- Ravno zlatno "sunce" iza fotografije: isti motiv kao u logotipu -->
+      <div class="absolute -top-8 -right-10 h-40 w-40 rounded-full bg-accent sm:h-52 sm:w-52" aria-hidden="true"></div>
+      <Photo src={image} alt={imageAlt} ratio="4 / 3.4" eager class="relative" />
+      {
+        facts.length > 0 && (
+          <dl class="card relative -mt-10 ml-4 grid w-fit max-w-[calc(100%-2rem)] grid-cols-2 gap-x-6 gap-y-1 px-5 py-4 sm:-mt-14 sm:ml-8">
+            {facts.map((f) => (
+              <div>
+                <dt class="text-sm text-muted">{f.label}</dt>
+                <dd class="font-heading text-xl font-semibold text-brand-ink">{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+    </div>
+  </div>
+  <slot name="motion" />
+</section>

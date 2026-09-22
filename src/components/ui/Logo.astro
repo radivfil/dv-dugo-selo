@@ -1,0 +1,54 @@
+---
+/**
+ * Logo — originalni monogram ustanove (nije gradski grb ni postojeći logotip).
+ * Znak: zaobljeni kvadrat u primarnoj boji, zlatno sunce koje izlazi iza ruba i klica
+ * iznad slova monograma. Slova i naziv dolaze iz src/config/site.ts.
+ */
+import { site } from '../../config/site';
+
+interface Props {
+  /** 'full' = znak + naziv, 'mark' = samo znak */
+  variant?: 'full' | 'mark';
+  /** Za tamnu (plavu) podlogu, npr. u podnožju */
+  inverse?: boolean;
+  class?: string;
+}
+
+const { variant = 'full', inverse = false, class: className } = Astro.props;
+---
+
+<span class:list={['inline-flex min-w-0 items-center gap-3', className]}>
+  <svg viewBox="0 0 48 48" width="48" height="48" class="h-11 w-11 shrink-0 sm:h-12 sm:w-12" aria-hidden="true">
+    <rect width="48" height="48" rx="14" fill={inverse ? 'var(--c-onBrand)' : 'var(--c-brand)'}></rect>
+    <circle cx="38" cy="10" r="9" fill="var(--c-accent)"></circle>
+    <path
+      d="M24 20c0-4 2.5-6.5 6.5-6.8C30.2 17.2 27.8 19.6 24 20Zm0 0c0-3.2-2-5.3-5.2-5.5C19 17.7 21 19.8 24 20Zm0 0v3"
+      fill="none"
+      stroke="var(--c-accent)"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path>
+    <text
+      x="24"
+      y="37.5"
+      text-anchor="middle"
+      font-family="var(--astro-font-heading), system-ui, sans-serif"
+      font-weight="700"
+      font-size="15"
+      letter-spacing="0.5"
+      fill={inverse ? 'var(--c-brand)' : 'var(--c-onBrand)'}>{site.monogram}</text
+    >
+  </svg>
+  {
+    variant === 'full' && (
+      <span class="flex min-w-0 flex-col leading-tight">
+        <span class:list={['font-heading text-[0.8rem] font-semibold tracking-wide uppercase', inverse ? 'text-on-brand/85' : 'text-muted']}>
+          {site.logoText.top}
+        </span>
+        <span class:list={['font-heading text-lg font-bold lg:whitespace-nowrap', inverse ? 'text-on-brand' : 'text-brand-ink']}>
+          {site.logoText.main}
+        </span>
+      </span>
+    )
+  }
+</span>

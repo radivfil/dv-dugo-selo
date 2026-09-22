@@ -1,0 +1,25 @@
+---
+/**
+ * SectionHeading — naslovni blok sekcije: nadnaslov, naslov (h2 zadano), uvodni tekst.
+ * `id` se postavlja na naslov kako bi ga sekcija mogla koristiti za aria-labelledby.
+ */
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  id?: string;
+  level?: 'h1' | 'h2' | 'h3';
+  align?: 'left' | 'center';
+  class?: string;
+}
+
+const { eyebrow, title, lead, id, level = 'h2', align = 'left', class: className } = Astro.props;
+const Tag = level;
+---
+
+<div class:list={['mb-8 md:mb-10', align === 'center' && 'mx-auto text-center', className]} data-reveal>
+  {eyebrow && <p class="eyebrow mb-2">{eyebrow}</p>}
+  <Tag id={id} class:list={['max-w-[24ch]', align === 'center' && 'mx-auto']}>{title}</Tag>
+  {lead && <p class:list={['lead mt-4', align === 'center' && 'mx-auto']}>{lead}</p>}
+  <slot />
+</div>

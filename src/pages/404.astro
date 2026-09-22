@@ -1,0 +1,20 @@
+---
+/** Stranica nije pronađena. */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/ui/Icon.astro';
+import { site } from '../config/site';
+---
+
+<BaseLayout title="Stranica nije pronađena" noindex>
+  <section class="section">
+    <div class="container-site max-w-2xl text-center">
+      <p class="eyebrow">Greška 404</p>
+      <h1 class="mx-auto mt-3">Ova stranica ne postoji</h1>
+      <p class="lead mx-auto mt-4">Možda je premještena kad smo uređivali novu stranicu. Pokušajte s izbornikom ili nekom od poveznica ispod.</p>
+      <ul class="mt-8 flex flex-wrap justify-center gap-3">
+        <li><a href="/" class="btn btn-brand"><Icon name="House" size={20} />Početna</a></li>
+        {site.quickLinks.slice(0, 2).map((l) => <li><a href={l.href} class="btn btn-outline">{l.label}</a></li>)}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

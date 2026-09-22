@@ -1,0 +1,77 @@
+---
+/**
+ * ProgramBento — programi i skupine u bento gridu (različite veličine i tonovi pločica).
+ * Veličina ('wide' | 'tall') i ton ('brand' | 'accent') zadaju se po programu u site.programs.
+ * `compact` skraćuje pločice (bez popisa detalja) za prikaz na početnoj stranici.
+ */
+import type { Program } from '../../config/site';
+import Icon from '../ui/Icon.astro';
+import Photo from '../ui/Photo.astro';
+
+interface Props {
+  programs: Program[];
+  compact?: boolean;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { programs, compact = false, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+
+const toneClass = (p: Program) =>
+  p.tone === 'brand'
+    ? 'on-brand bg-brand text-on-brand border-brand'
+    : p.tone === 'accent'
+      ? 'bg-accent-soft border-accent'
+      : 'bg-surface border-line';
+---
+
+<ul class="grid grid-flow-dense gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  {
+    programs.map((p, i) => (
+      <li
+        id={compact ? undefined : p.id}
+        data-reveal
+        style={`--reveal-i:${i % 3}`}
+        class:list={[
+          'flex flex-col overflow-hidden rounded-[var(--radius-card)] border',
+          toneClass(p),
+          p.size === 'wide' && 'sm:col-span-2',
+          p.size === 'tall' && 'lg:row-span-2',
+        ]}>
+        {p.size === 'tall' && p.imageAlt && (
+          <Photo alt={p.imageAlt} ratio="4 / 3" class="!rounded-none" />
+        )}
+        <div class="flex flex-1 flex-col gap-3 p-6">
+          <div class="flex items-center justify-between gap-3">
+            <span
+              class:list={[
+                'grid h-12 w-12 shrink-0 place-items-center rounded-[var(--radius-control)]',
+                p.tone === 'brand' ? 'bg-accent text-on-accent' : p.tone === 'accent' ? 'bg-accent text-on-accent' : 'bg-brand-soft text-brand-ink',
+              ]}>
+              <Icon name={p.icon} size={24} />
+            </span>
+            <span
+              class:list={[
+                'rounded-full px-3 py-1 text-sm font-bold whitespace-nowrap',
+                p.tone === 'brand' ? 'bg-on-brand/15 text-on-brand' : 'bg-surface-2 text-ink',
+              ]}>
+              {p.age}
+            </span>
+          </div>
+          <Heading class:list={['text-xl', p.tone === 'brand' && 'text-on-brand']}>{p.title}</Heading>
+          <p class:list={[p.tone === 'brand' ? 'text-on-brand/90' : 'text-muted']}>{p.summary}</p>
+          {!compact && p.details.length > 0 && (
+            <ul class="mt-auto grid gap-1.5 pt-2 text-[0.95rem]">
+              {p.details.map((d) => (
+                <li class="flex gap-2">
+                  <Icon name="Check" size={18} class:list={['mt-1 shrink-0', p.tone === 'brand' ? 'text-accent' : 'text-brand-ink']} />
+                  <span>{d}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </li>
+    ))
+  }
+</ul>

@@ -1,0 +1,77 @@
+---
+/**
+ * Izjava o pristupačnosti prema modelu iz Provedbene odluke Komisije (EU) 2018/1523
+ * i Zakonu o pristupačnosti mrežnih stranica i programskih rješenja za pokretne uređaje
+ * tijela javnog sektora (NN 17/19). Podaci iz site.accessibility.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/sections/PageHeader.astro';
+import { site } from '../config/site';
+
+const a = site.accessibility;
+---
+
+<BaseLayout title="Izjava o pristupačnosti" description={`Izjava o pristupačnosti mrežne stranice ${site.url}`}>
+  <PageHeader title="Izjava o pristupačnosti" eyebrow="Pristupačnost" />
+
+  <section class="section">
+    <div class="container-site">
+      <div class="prose-site">
+        <p>
+          {site.legalName} nastoji svoju mrežnu stranicu učiniti pristupačnom u skladu sa Zakonom o pristupačnosti mrežnih stranica i programskih
+          rješenja za pokretne uređaje tijela javnog sektora (Narodne novine, broj 17/19), kojim se u hrvatsko zakonodavstvo prenosi Direktiva (EU)
+          2016/2102 Europskog parlamenta i Vijeća.
+        </p>
+        <p>Ova izjava o pristupačnosti primjenjuje se na mrežnu stranicu <a href={site.url}>{site.url.replace('https://', '')}</a>.</p>
+
+        <h2>Status usklađenosti</h2>
+        <p>
+          Ova mrežna stranica <strong>{a.status}</strong> je sa Zakonom o pristupačnosti mrežnih stranica i programskih rješenja za pokretne uređaje
+          tijela javnog sektora, odnosno sa zahtjevima norme EN 301 549 i smjernica WCAG 2.1 na razini AA.
+        </p>
+        <p>Pristupačnost je ugrađena izravno u kod stranice, bez dodatnih alata ili widgeta:</p>
+        <ul>
+          <li>semantička HTML struktura s jasnom hijerarhijom naslova i orijentirima (zaglavlje, izbornik, glavni sadržaj, podnožje)</li>
+          <li>poveznica „Preskoči na sadržaj” i potpuna mogućnost korištenja tipkovnicom, s jasno vidljivim fokusom</li>
+          <li>kontrast teksta i pozadine najmanje 4,5:1</li>
+          <li>tekstualni opis (alt tekst) za sve slike</li>
+          <li>poštivanje postavki operacijskog sustava: smanjeno kretanje i tamni način prikaza</li>
+          <li>prilagodljiv prikaz na svim veličinama zaslona i pri povećanju teksta do 200 %</li>
+          <li>obrasci s vidljivim oznakama polja i jasnim porukama o greškama</li>
+        </ul>
+
+        <h2>Priprema ove izjave o pristupačnosti</h2>
+        <p>
+          Izjava je sastavljena <strong>{a.statementDate}</strong> na temelju samoprocjene koju je proveo {site.legalName}, uz ručnu provjeru
+          tipkovnicom, čitačem zaslona i automatizirane alate za provjeru pristupačnosti. Izjava je posljednji put preispitana
+          <strong>{a.reviewDate}</strong>.
+        </p>
+
+        <h2>Povratne informacije i podaci za kontakt</h2>
+        <p>
+          Ako uočite prepreku u pristupu sadržaju ili vam je potreban sadržaj u drugom obliku, javite nam se. Odgovor ćete dobiti najkasnije u
+          roku od 15 dana od primitka zahtjeva.
+        </p>
+        <ul>
+          <li>e-pošta: <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></li>
+          <li>telefon: <a href={`tel:${site.contact.phoneHref}`}>{site.contact.phone}</a></li>
+          <li>poštom: {site.legalName}, {site.contact.address}, {site.contact.postalCity}</li>
+        </ul>
+
+        <h2>Postupak praćenja provedbe propisa</h2>
+        <p>
+          Nadležno tijelo za praćenje usklađenosti mrežnih stranica i programskih rješenja za pokretne uređaje tijela javnog sektora sa zahtjevima
+          pristupačnosti te za praćenje provedbe propisa kojima se uređuje pristupačnost je <strong>{a.supervisor.name}</strong>.
+        </p>
+        <p>
+          Ako na svoj upit ili zahtjev ne dobijete odgovor ili niste zadovoljni odgovorom, možete se obratiti Povjereniku za informiranje:
+        </p>
+        <ul>
+          <li>e-pošta: <a href={`mailto:${a.supervisor.email}`}>{a.supervisor.email}</a></li>
+          <li>adresa: {a.supervisor.address}</li>
+          <li>mrežna stranica: <a href={a.supervisor.url} rel="noopener">{a.supervisor.url.replace('https://', '')}</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

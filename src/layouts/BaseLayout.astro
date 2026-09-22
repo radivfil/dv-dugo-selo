@@ -1,0 +1,75 @@
+---
+/**
+ * BaseLayout — okvir svake stranice: <head> (SEO, fontovi, boje iz konfiguracije),
+ * poveznica za preskakanje, zaglavlje, glavni sadržaj i podnožje.
+ * View Transitions (ClientRouter) daju glatke prijelaze i sami poštuju prefers-reduced-motion.
+ */
+import { ClientRouter } from 'astro:transitions';
+import { Font } from 'astro:assets';
+import { site } from '../config/site';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Za interne stranice (admin) koje tražilice ne smiju indeksirati */
+  noindex?: boolean;
+  /** Bez zaglavlja i podnožja (npr. admin) */
+  bare?: boolean;
+}
+
+const { title, description = site.description, noindex = false, bare = false } = Astro.props;
+const fullTitle = title ? `${title} | ${site.shortName}` : `${site.name} | ${site.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// Pretvara tokene iz konfiguracije u CSS varijable (--c-*) za svijetli i tamni način.
+const toVars = (palette: Record<string, string>) =>
+  Object.entries(palette)
+    .map(([key, value]) => `--c-${key}:${value};`)
+    .join('');
+const themeCss = `:root{${toVars(site.colors.light)}}@media (prefers-color-scheme: dark){:root{${toVars(site.colors.dark)}}}`;
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {(noindex || !site.indexable) && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content={site.colors.light.brand} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={site.colors.dark.bg} media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={site.locale} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <Font cssVariable="--astro-font-heading" preload />
+    <Font cssVariable="--astro-font-body" preload />
+    <style is:inline set:html={themeCss}></style>
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <ClientRouter />
+    <slot name="head" />
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <a
+      href="#sadrzaj"
+      class="btn btn-brand fixed top-3 left-3 z-[100] -translate-y-24 focus:translate-y-0">Preskoči na sadržaj</a
+    >
+    {!bare && <Header />}
+    <main id="sadrzaj" tabindex="-1" class="flex-1 focus:outline-none">
+      <slot />
+    </main>
+    {!bare && <Footer />}
+    <script>
+      import '../scripts/reveal';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,57 @@
+---
+/**
+ * Photo — fotografija s fiksnim omjerom (aspect-ratio, bez fiksne visine) i lazy loadingom.
+ * Dok ustanova ne dostavi pravu fotografiju (nema `src`), prikazuje se neutralno rezervirano
+ * mjesto s istim alt opisom, tako da raspored i pristupačnost ostaju ispravni.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  src?: string;
+  alt: string;
+  /** CSS aspect-ratio, npr. '4 / 3' */
+  ratio?: string;
+  class?: string;
+  /** true samo za fotografiju iznad pregiba (hero) */
+  eager?: boolean;
+  sizes?: string;
+  /** Prikaži opis u rezerviranom mjestu (isključiti kad postoji vidljivi natpis) */
+  showAlt?: boolean;
+}
+
+const { src, alt, ratio = '4 / 3', class: className, eager = false, showAlt = true } = Astro.props;
+---
+
+{
+  src ? (
+    <img
+      src={src}
+      alt={alt}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+      fetchpriority={eager ? 'high' : undefined}
+      class:list={['w-full rounded-[var(--radius-card)] object-cover', className]}
+      style={`aspect-ratio:${ratio}`}
+    />
+  ) : (
+    /* TODO: prava fotografija — dodati kroz /admin ili u public/uploads */
+    <div
+      role="img"
+      aria-label={alt}
+      class:list={['photo-placeholder relative grid w-full place-items-center overflow-hidden rounded-[var(--radius-card)] bg-brand-soft text-brand-ink', className]}
+      style={`aspect-ratio:${ratio}`}>
+      <div class="flex max-w-[80%] flex-col items-center gap-2 text-center" aria-hidden="true">
+        <Icon name="Image" size={32} />
+        {showAlt && <span class="text-sm font-semibold">{alt}</span>}
+      </div>
+    </div>
+  )
+}
+
+<style>
+  /* Diskretna točkasta tekstura da rezervirano mjesto ne izgleda kao prazna greška */
+  .photo-placeholder {
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--c-brandInk) 14%, transparent) 1px, transparent 1.5px);
+    background-size: 14px 14px;
+  }
+</style>

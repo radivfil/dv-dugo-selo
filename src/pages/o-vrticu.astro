@@ -1,0 +1,82 @@
+---
+/** O vrtiću: uvod, vrijednosti, tri lokacije, stručni tim. */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/sections/PageHeader.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import LocationList from '../components/sections/LocationList.astro';
+import CtaBand from '../components/sections/CtaBand.astro';
+import Icon from '../components/ui/Icon.astro';
+import Badge from '../components/ui/Badge.astro';
+import { site } from '../config/site';
+---
+
+<BaseLayout title="O vrtiću" description={site.about.intro}>
+  <PageHeader title="O vrtiću" eyebrow={`Osnivač: ${site.founder}`} lead={site.about.intro}>
+    <Badge {...site.badge} class="mt-6" />
+  </PageHeader>
+
+  <section class="section" aria-labelledby="vrijednosti">
+    <div class="container-site">
+      <SectionHeading id="vrijednosti" eyebrow="Kako radimo" title="Ono do čega nam je stalo" />
+      <ul class="grid gap-x-10 gap-y-8 md:grid-cols-3">
+        {
+          site.about.values.map((v, i) => (
+            <li class="border-t-4 border-brand pt-5" data-reveal style={`--reveal-i:${i}`}>
+              <Icon name={v.icon} size={28} class="text-brand-ink" />
+              <h3 class="mt-3">{v.title}</h3>
+              <p class="mt-2 text-muted">{v.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section bg-surface-2" aria-labelledby="lokacije">
+    <div class="container-site">
+      <SectionHeading
+        id="lokacije"
+        eyebrow="Lokacije"
+        title={`${site.locations.length} objekta u Dugom Selu`}
+        lead="Upis se provodi za vrtić kao cjelinu, a pri prijavi u e-Upisima možete navesti objekt koji vam najviše odgovara. Obroci za sve objekte pripremaju se u kuhinji centralnog objekta."
+      />
+      <LocationList locations={site.locations} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="tim">
+    <div class="container-site grid gap-10 lg:grid-cols-[1fr_1.2fr]">
+      <SectionHeading
+        id="tim"
+        eyebrow="Stručni tim"
+        title="Ljudi uz vaše dijete"
+        lead="Uz odgojitelje u skupinama, stručni tim prati razvoj djece, savjetuje roditelje i vodi brigu o prehrani i zdravlju. Za razgovor se javite tajništvu ili izravno odgojiteljima skupine."
+      />
+      <ul class="grid gap-3 sm:grid-cols-2">
+        {
+          site.about.team.map((m, i) => (
+            <li class="card flex items-center gap-4 p-4" data-reveal style={`--reveal-i:${i}`}>
+              <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-brand-soft text-brand-ink" aria-hidden="true">
+                <Icon name="UserRound" size={22} />
+              </span>
+              <span class="min-w-0">
+                <span class="block font-heading font-semibold">{m.role}</span>
+                <span class="block text-muted">{m.name}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <div class="pb-16 md:pb-24">
+    <CtaBand
+      title="Želite vidjeti vrtić uživo?"
+      text="Za posjet objektu prije upisa dogovorite termin s tajništvom. Rado ćemo vam pokazati sobe, dvorište i eko vrt."
+      cta={{ label: 'Kontaktirajte nas', href: '/kontakt' }}
+      tone="accent"
+      icon="CalendarCheck"
+    />
+  </div>
+</BaseLayout>

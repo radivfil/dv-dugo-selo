@@ -1,0 +1,18 @@
+---
+/** Popis svih novosti (kolekcija "novosti", uređuje se kroz CMS). */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/sections/PageHeader.astro';
+import NewsList from '../../components/sections/NewsList.astro';
+
+const news = (await getCollection('novosti')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="Novosti" description="Obavijesti i događanja u Dječjem vrtiću Dugo Selo.">
+  <PageHeader title="Novosti" eyebrow="Obavijesti" lead="Obavijesti za roditelje, događanja u skupinama i vijesti iz vrtića." />
+  <section class="section" aria-label="Sve novosti">
+    <div class="container-site">
+      <NewsList items={news} headingLevel="h2" />
+    </div>
+  </section>
+</BaseLayout>

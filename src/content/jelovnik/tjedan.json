@@ -1,0 +1,11 @@
+{
+  "week": "22. – 26. rujna 2026.",
+  "note": "Jelovnik je sastavljen prema Programu zdravstvene zaštite djece. Za djecu s dijetom pripremamo zamjenske obroke prema potvrdi liječnika.",
+  "days": [
+    { "day": "Ponedjeljak", "breakfast": "Zobena kaša s jabukom i cimetom, mlijeko", "lunch": "Juha od povrća, pileći rižoto s tikvicama, salata od mrkve", "snack": "Sezonsko voće" },
+    { "day": "Utorak", "breakfast": "Integralni kruh, sirni namaz, čaj od šipka", "lunch": "Varivo od graška s puretinom, kruh", "snack": "Jogurt s domaćim musli" },
+    { "day": "Srijeda", "breakfast": "Palenta s jogurtom", "lunch": "Krem juha od bundeve, riblji štapići pečeni u pećnici, pire od krumpira i blitve", "snack": "Kruška" },
+    { "day": "Četvrtak", "breakfast": "Kukuruzni kruh, maslac, med, mlijeko", "lunch": "Goveđa juha s rezancima, lešo povrće, junetina u umaku", "snack": "Pita od jabuka (bez dodanog šećera)" },
+    { "day": "Petak", "breakfast": "Jaje na oko, polubijeli kruh, čaj", "lunch": "Tjestenina s umakom od rajčice i leće, zelena salata", "snack": "Banana i keksi od zobi" }
+  ]
+}

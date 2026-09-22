@@ -1,0 +1,110 @@
+---
+/**
+ * FormField — jedno polje obrasca s oznakom, pomoćnim tekstom i porukom o grešci
+ * povezanima preko aria-describedby. Podržava text/email/tel/date, select, textarea, checkbox i file.
+ *
+ * `map` određuje stupac u tablici submissions (child_name, parent_name, parent_contact, date);
+ * polja bez `map` spremaju se u `details` pod svojim imenom (vidi src/scripts/forms.ts).
+ */
+interface Props {
+  name: string;
+  label: string;
+  type?: 'text' | 'email' | 'tel' | 'date' | 'select' | 'textarea' | 'checkbox' | 'file';
+  required?: boolean;
+  hint?: string;
+  autocomplete?: string;
+  options?: readonly string[];
+  placeholder?: string;
+  min?: string;
+  max?: string;
+  accept?: string;
+  rows?: number;
+  pattern?: string;
+  maxlength?: number;
+  map?: 'child_name' | 'parent_name' | 'parent_contact' | 'date';
+  /** Ime polja čiji datum ovaj ne smije prethoditi (npr. "do" nakon "od") */
+  after?: string;
+  class?: string;
+  /** Dodatni atributi polja, npr. data-min-today, data-min-message */
+  [key: `data-${string}`]: string | boolean | undefined;
+}
+
+const {
+  name,
+  label,
+  type = 'text',
+  required = false,
+  hint,
+  autocomplete,
+  options = [],
+  placeholder,
+  min,
+  max,
+  accept,
+  rows = 5,
+  pattern,
+  maxlength,
+  map,
+  after,
+  class: className,
+  ...dataAttrs
+} = Astro.props;
+
+// Zadani uzorci; preglednici ih provjeravaju u 'v' načinu, pa su posebni znakovi escapirani.
+const DEFAULT_PATTERNS: Record<string, string> = {
+  email: String.raw`[^@\s]+@[^@\s]+\.[^@\s]{2,}`,
+  tel: String.raw`[0-9 +\(\)\/\-]{6,20}`,
+};
+
+const id = `f-${name}`;
+const describedBy = [hint && `${id}-hint`, `${id}-error`].filter(Boolean).join(' ');
+const common = { ...dataAttrs, id, name, required, 'aria-describedby': describedBy, 'data-map': map, 'data-after': after };
+---
+
+{
+  type === 'checkbox' ? (
+    <div class:list={['field', className]}>
+      <label for={id} class="flex cursor-pointer items-start gap-3">
+        <input {...common} type="checkbox" value="da" class="mt-0.5 h-6 w-6 shrink-0 cursor-pointer accent-[var(--c-brand)]" />
+        <span>
+          {label}
+          {required && <span class="text-danger"> *</span>}
+        </span>
+      </label>
+      {hint && <span id={`${id}-hint`} class="field-hint pl-9">{hint}</span>}
+      <span id={`${id}-error`} class="field-error pl-9" />
+    </div>
+  ) : (
+    <div class:list={['field', className]}>
+      <label for={id} class="field-label">
+        {label}
+        {required ? <span class="text-danger"> *</span> : <span class="font-normal text-muted"> (neobavezno)</span>}
+      </label>
+      {type === 'select' ? (
+        <select {...common} class="field-input" autocomplete={autocomplete}>
+          <option value="">Odaberite…</option>
+          {options.map((o) => (
+            <option value={o}>{o}</option>
+          ))}
+        </select>
+      ) : type === 'textarea' ? (
+        <textarea {...common} rows={rows} class="field-input" placeholder={placeholder} maxlength={maxlength ?? 2000} />
+      ) : (
+        <input
+          {...common}
+          type={type}
+          class:list={['field-input', type === 'file' && 'cursor-pointer file:mr-3 file:rounded-lg file:border-0 file:bg-brand-soft file:px-3 file:py-2 file:font-semibold file:text-brand-ink']}
+          autocomplete={autocomplete}
+          placeholder={placeholder}
+          min={min}
+          max={max}
+          accept={accept}
+          pattern={pattern ?? DEFAULT_PATTERNS[type]}
+          maxlength={maxlength ?? (type === 'file' || type === 'date' ? undefined : 120)}
+        />
+      )}
+      {hint && <span id={`${id}-hint`} class="field-hint">{hint}</span>}
+      <span id={`${id}-error`} class="field-error" />
+    </div>
+  )
+}

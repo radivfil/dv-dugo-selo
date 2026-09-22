@@ -1,0 +1,73 @@
+---
+/**
+ * LocationList — lokacije ustanove.
+ * 'compact': numerirani popis za početnu stranicu.
+ * 'full': pločice s opisom, skupinama, telefonom i poveznicom na kartu.
+ */
+import type { Location } from '../../config/site';
+import Icon from '../ui/Icon.astro';
+import Photo from '../ui/Photo.astro';
+
+interface Props {
+  locations: Location[];
+  variant?: 'compact' | 'full';
+}
+
+const { locations, variant = 'full' } = Astro.props;
+const mapUrl = (q: string) => `https://www.openstreetmap.org/search?query=${encodeURIComponent(q)}`;
+---
+
+{
+  variant === 'compact' ? (
+    <ol class="grid gap-3">
+      {locations.map((loc, i) => (
+        <li class="flex gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-4" data-reveal style={`--reveal-i:${i}`}>
+          <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand font-heading font-semibold text-on-brand" aria-hidden="true">
+            {i + 1}
+          </span>
+          <div class="min-w-0">
+            <h3 class="text-lg">{loc.name}</h3>
+            <p class="text-muted">
+              {loc.address}, {loc.postalCity}
+            </p>
+            <p class="text-[0.95rem] text-ink">
+              <span class="font-semibold">Skupine:</span> {loc.groups}
+            </p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <ul class="grid gap-6 lg:grid-cols-3">
+      {locations.map((loc, i) => (
+        <li id={loc.id} class="card flex flex-col overflow-hidden" data-reveal style={`--reveal-i:${i}`}>
+          <Photo alt={`Zgrada i dvorište: ${loc.name}`} ratio="16 / 10" class="!rounded-none" />
+          <div class="flex flex-1 flex-col gap-3 p-6">
+            <p class="eyebrow">Lokacija {i + 1}</p>
+            <h3>{loc.name}</h3>
+            <p class="text-muted">{loc.description}</p>
+            <dl class="mt-auto grid gap-2 border-t border-line pt-4 text-[0.95rem]">
+              <div class="flex gap-2">
+                <dt><Icon name="MapPin" size={18} class="mt-1 text-brand-ink" label="Adresa" /></dt>
+                <dd>{loc.address}, {loc.postalCity}</dd>
+              </div>
+              <div class="flex gap-2">
+                <dt><Icon name="Users" size={18} class="mt-1 text-brand-ink" label="Skupine" /></dt>
+                <dd>{loc.groups}</dd>
+              </div>
+              <div class="flex gap-2">
+                <dt><Icon name="Phone" size={18} class="mt-1 text-brand-ink" label="Telefon" /></dt>
+                <dd><a href={`tel:${loc.phone.replace(/\s/g, '')}`} class="-my-3 inline-flex min-h-11 items-center">{loc.phone}</a></dd>
+              </div>
+            </dl>
+            <a href={mapUrl(loc.mapQuery)} class="btn btn-outline mt-2 self-start" rel="noopener" target="_blank">
+              Prikaži na karti
+              <Icon name="ExternalLink" size={18} />
+              <span class="visually-hidden">(otvara se u novom prozoru)</span>
+            </a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}

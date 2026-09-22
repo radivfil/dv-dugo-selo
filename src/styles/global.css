@@ -1,0 +1,416 @@
+/*
+ * Globalni stilovi i dizajnerski tokeni.
+ * Vrijednosti boja NE upisivati ovdje: generira ih BaseLayout iz src/config/site.ts
+ * kao CSS varijable (--c-*). Tailwind klase (bg-brand, text-ink...) čitaju te varijable.
+ */
+@import 'tailwindcss';
+/* Eksplicitno skeniraj cijeli src/ (i datoteke dodane dok radi dev server). */
+@source '../';
+
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface2);
+  --color-line: var(--c-line);
+  --color-ink: var(--c-ink);
+  --color-muted: var(--c-muted);
+  --color-brand: var(--c-brand);
+  --color-brand-strong: var(--c-brandStrong);
+  --color-brand-ink: var(--c-brandInk);
+  --color-brand-soft: var(--c-brandSoft);
+  --color-on-brand: var(--c-onBrand);
+  --color-accent: var(--c-accent);
+  --color-accent-strong: var(--c-accentStrong);
+  --color-accent-soft: var(--c-accentSoft);
+  --color-accent-ink: var(--c-accentInk);
+  --color-on-accent: var(--c-onAccent);
+  --color-success: var(--c-success);
+  --color-success-soft: var(--c-successSoft);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-dangerSoft);
+
+  --font-heading: var(--astro-font-heading), system-ui, sans-serif;
+  --font-body: var(--astro-font-body), system-ui, sans-serif;
+}
+
+/* Jedinstvena pravila za oblike i sjene: dvije razine zaobljenja, jedna sjena. */
+@theme {
+  --radius-card: 1.25rem;
+  --radius-control: 0.75rem;
+  --shadow-card: 0 1px 2px rgb(23 33 58 / 0.06), 0 4px 16px rgb(23 33 58 / 0.06);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background: var(--c-bg);
+    color: var(--c-ink);
+    font-family: var(--astro-font-body), system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    /* Riječi se ne rastavljaju na slogove (preglednici hrvatski često rastave pogrešno);
+       lome se samo ako jedna riječ sama ne stane u redak. */
+    overflow-wrap: break-word;
+    hyphens: manual;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--astro-font-heading), system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.2;
+    text-wrap: balance;
+    color: var(--c-ink);
+  }
+
+  /* Fluidna tipografija naslova */
+  h1 {
+    font-size: clamp(1.9rem, 1.3rem + 2.8vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  h2 {
+    font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.35rem);
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.4rem);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Poveznice su podcrtane (prepoznatljive i bez boje); komponente to isključuju klasom no-underline. */
+  a {
+    color: var(--c-brandInk);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Vidljiv fokus samo kod navigacije tipkovnicom */
+  /* Plavi prsten na svijetloj podlozi, zlatni na plavoj (.on-brand) — kontrast > 3:1 */
+  :focus-visible {
+    outline: 3px solid var(--c-brandInk);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .on-brand :focus-visible {
+    outline-color: var(--c-accent);
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background: var(--c-accent);
+    color: var(--c-onAccent);
+  }
+
+  img,
+  svg,
+  video,
+  iframe {
+    max-width: 100%;
+  }
+
+  /* Stavke grida se ne smiju širiti preko stupca zbog dugog sadržaja (npr. pri 200 % fonta) */
+  :where(.grid) > * {
+    min-width: 0;
+  }
+  /* Duge e-adrese i URL-ovi lome se samo ako ne stanu, umjesto da guraju stranicu u stranu */
+  a {
+    overflow-wrap: break-word;
+  }
+}
+
+@layer components {
+  .container-site {
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+  }
+
+  .section {
+    padding-block: clamp(3rem, 2rem + 4vw, 6rem);
+  }
+
+  .eyebrow {
+    font-family: var(--astro-font-heading), system-ui, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-brandInk);
+  }
+
+  .lead {
+    font-size: clamp(1.05rem, 1rem + 0.35vw, 1.25rem);
+    color: var(--c-muted);
+    max-width: 62ch;
+  }
+
+  .prose-site {
+    max-width: 68ch;
+  }
+  .prose-site > * + * {
+    margin-top: 1em;
+  }
+  .prose-site h2 {
+    margin-top: 1.8em;
+    font-size: clamp(1.3rem, 1.15rem + 0.8vw, 1.75rem);
+  }
+  .prose-site h3 {
+    margin-top: 1.4em;
+  }
+  .prose-site ul {
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+  .prose-site ol {
+    list-style: decimal;
+    padding-left: 1.25rem;
+  }
+  .prose-site li + li {
+    margin-top: 0.35em;
+  }
+
+  .card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Gumbi: min. 44x44 px, jasna stanja hover/active/focus */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.9rem;
+    min-width: 2.75rem;
+    padding: 0.7rem 1.25rem;
+    border-radius: var(--radius-control);
+    font-family: var(--astro-font-heading), system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.2;
+    text-decoration: none;
+    text-align: center;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition:
+      background-color 180ms var(--ease-out-soft),
+      border-color 180ms var(--ease-out-soft),
+      color 180ms var(--ease-out-soft),
+      transform 160ms var(--ease-out-soft);
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .btn svg {
+    flex-shrink: 0;
+    transition: transform 200ms var(--ease-out-soft);
+  }
+  .btn:hover svg.btn-arrow {
+    transform: translateX(3px);
+  }
+  .btn-accent {
+    background: var(--c-accent);
+    color: var(--c-onAccent);
+  }
+  .btn-accent:hover {
+    background: var(--c-accentStrong);
+  }
+  .btn-brand {
+    background: var(--c-brand);
+    color: var(--c-onBrand);
+  }
+  .btn-brand:hover {
+    background: var(--c-brandStrong);
+  }
+  .btn-outline {
+    border-color: currentColor;
+    color: var(--c-brandInk);
+    background: transparent;
+  }
+  .btn-outline:hover {
+    background: var(--c-brandSoft);
+  }
+  .btn-on-brand {
+    border-color: var(--c-onBrand);
+    color: var(--c-onBrand);
+    background: transparent;
+  }
+  .btn-on-brand:hover {
+    background: rgb(255 255 255 / 0.12);
+  }
+
+  /* Obrasci: min-width 0 sprječava da široke opcije selecta prošire stupac (npr. pri 200 % fonta) */
+  .field {
+    min-width: 0;
+  }
+  .field-label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+  .field-hint {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--c-muted);
+    margin-top: 0.3rem;
+  }
+  .field-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    min-height: 2.9rem;
+    padding: 0.65rem 0.85rem;
+    border: 2px solid var(--c-line);
+    border-radius: var(--radius-control);
+    background: var(--c-surface);
+    color: var(--c-ink);
+    font: inherit;
+    transition: border-color 150ms;
+  }
+  .field-input:hover {
+    border-color: var(--c-muted);
+  }
+  .field-input:focus-visible {
+    outline: 3px solid var(--c-brandInk);
+    outline-offset: 1px;
+    border-color: var(--c-brand);
+  }
+  .field-input[aria-invalid='true'] {
+    border-color: var(--c-danger);
+  }
+  .field-error {
+    display: block;
+    color: var(--c-danger);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.3rem;
+  }
+  .field-error:empty {
+    display: none;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Animacije (CSS-first). Elementi s [data-reveal] se pojavljuju pri scrollu.
+ * Skripta u src/scripts/reveal.ts dodaje klasu .is-visible.
+ * Bez JS-a ili uz prefers-reduced-motion sadržaj je odmah vidljiv.
+ * ------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 600ms var(--ease-out-soft),
+      transform 600ms var(--ease-out-soft);
+    transition-delay: calc(var(--reveal-i, 0) * 70ms);
+  }
+  .js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .interactive-card {
+    transition:
+      transform 220ms var(--ease-out-soft),
+      border-color 220ms var(--ease-out-soft);
+  }
+  .interactive-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--c-brand);
+  }
+
+  /* Potvrda uspjeha obrasca: kvačica se iscrtava, poruka ulazi */
+  .success-check circle {
+    stroke-dasharray: 160;
+    stroke-dashoffset: 160;
+    animation: draw 600ms var(--ease-out-soft) forwards;
+  }
+  .success-check path {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: draw 400ms 450ms var(--ease-out-soft) forwards;
+  }
+  .success-panel {
+    animation: rise 450ms var(--ease-out-soft);
+  }
+  .shake {
+    animation: shake 380ms var(--ease-out-soft);
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes shake {
+  25% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+}
+
+/* View Transitions: kratak fade između stranica (ClientRouter sam poštuje reduced-motion) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,161 @@
+---
+/** Kutak za roditelje: e-obrasci (izostanak, ispis), tjedni jelovnik, savjeti stručnog tima. */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/sections/PageHeader.astro';
+import SectionHeading from '../../components/ui/SectionHeading.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { site } from '../../config/site';
+
+const [menu] = await getCollection('jelovnik');
+
+const services = [
+  {
+    title: 'Prijava izostanka',
+    text: `Javite izostanak do ${site.parents.absenceDeadline} sati i obrok se taj dan ne obračunava. Potvrdu dobivate odmah.`,
+    href: '/roditelji/prijava-izostanka',
+    icon: 'CalendarX',
+    primary: true,
+  },
+  {
+    title: 'Ispis djeteta',
+    text: 'Ispunite zahtjev, preuzmite PDF za potpis i učitajte potpisani sken. Bez dolaska u tajništvo.',
+    href: '/roditelji/ispis-djeteta',
+    icon: 'FilePen',
+  },
+  {
+    title: 'Pitanje za vrtić',
+    text: 'Za sve ostalo pišite nam kroz kontakt obrazac ili nazovite tajništvo.',
+    href: '/kontakt#obrazac',
+    icon: 'MessageCircle',
+  },
+];
+---
+
+<BaseLayout title="Kutak za roditelje" description={site.parents.intro}>
+  <PageHeader title="Kutak za roditelje" eyebrow="Za obitelji" lead={site.parents.intro} />
+
+  <section class="section" aria-labelledby="e-obrasci">
+    <div class="container-site">
+      <SectionHeading id="e-obrasci" eyebrow="e-Obrasci" title="Riješite bez dolaska u vrtić" />
+      <ul class="grid gap-4 md:grid-cols-[1.4fr_1fr] md:grid-rows-2">
+        {
+          services.map((s, i) => (
+            <li class:list={[s.primary && 'md:row-span-2']} data-reveal style={`--reveal-i:${i}`}>
+              <a
+                href={s.href}
+                class:list={[
+                  'interactive-card group flex h-full flex-col gap-3 rounded-[var(--radius-card)] border p-6 no-underline md:p-8',
+                  s.primary ? 'on-brand border-brand bg-brand text-on-brand' : 'border-line bg-surface text-ink shadow-[var(--shadow-card)]',
+                ]}>
+                <span
+                  class:list={[
+                    'grid h-12 w-12 place-items-center rounded-[var(--radius-control)]',
+                    s.primary ? 'bg-accent text-on-accent' : 'bg-brand-soft text-brand-ink',
+                  ]}>
+                  <Icon name={s.icon} size={24} />
+                </span>
+                <span class:list={['font-heading font-semibold', s.primary ? 'text-2xl md:text-3xl' : 'text-xl']}>{s.title}</span>
+                <span class:list={[s.primary ? 'text-on-brand/90 md:text-lg' : 'text-muted']}>{s.text}</span>
+                <span class="mt-auto inline-flex items-center gap-2 pt-2 font-heading font-semibold">
+                  Otvori obrazac
+                  <Icon name="ArrowRight" size={20} class="transition-transform group-hover:translate-x-1" />
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {
+    menu && (
+      <section id="jelovnik" class="section bg-surface-2" aria-labelledby="jelovnik-naslov">
+        <div class="container-site">
+          <SectionHeading id="jelovnik-naslov" eyebrow="Jelovnik" title={`Jelovnik za tjedan ${menu.data.week}`} lead={menu.data.note} />
+          <div class="card overflow-hidden" data-reveal>
+            <table class="menu-table w-full text-left">
+              <caption class="visually-hidden">Tjedni jelovnik, {menu.data.week}</caption>
+              <thead class="bg-brand text-on-brand">
+                <tr>
+                  <th scope="col" class="p-4 font-heading">Dan</th>
+                  <th scope="col" class="p-4 font-heading">Doručak</th>
+                  <th scope="col" class="p-4 font-heading">Ručak</th>
+                  <th scope="col" class="p-4 font-heading">Užina</th>
+                </tr>
+              </thead>
+              <tbody>
+                {menu.data.days.map((d) => (
+                  <tr class="border-t border-line align-top">
+                    <th scope="row" class="p-4 font-heading font-semibold whitespace-nowrap text-brand-ink">{d.day}</th>
+                    <td class="p-4" data-label="Doručak">{d.breakfast}</td>
+                    <td class="p-4" data-label="Ručak">{d.lunch}</td>
+                    <td class="p-4" data-label="Užina">{d.snack}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section" aria-labelledby="savjeti">
+    <div class="container-site">
+      <SectionHeading id="savjeti" eyebrow="Savjeti" title="Stručni tim odgovara" />
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr]">
+        {
+          site.parents.tips.map((t, i) => (
+            <figure
+              class:list={['rounded-[var(--radius-card)] border p-6', i === 0 ? 'border-accent bg-accent-soft' : 'border-line bg-surface']}
+              data-reveal
+              style={`--reveal-i:${i}`}>
+              <blockquote>
+                <p class="font-heading text-lg font-semibold">{t.title}</p>
+                <p class="mt-2 text-muted">{t.text}</p>
+              </blockquote>
+              <figcaption class="mt-4 text-sm font-bold text-brand-ink">{t.author}</figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Na uskim ekranima tablica jelovnika postaje niz kartica (jedan dan = jedna kartica). */
+  @media (max-width: 47.99rem) {
+    .menu-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+    .menu-table tr,
+    .menu-table th,
+    .menu-table td {
+      display: block;
+    }
+    .menu-table th[scope='row'] {
+      padding-bottom: 0.25rem;
+    }
+    .menu-table td {
+      padding-top: 0.35rem;
+      padding-bottom: 0.35rem;
+    }
+    .menu-table td::before {
+      content: attr(data-label);
+      display: block;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--c-muted);
+    }
+    .menu-table tr {
+      padding-bottom: 0.75rem;
+    }
+  }
+</style>

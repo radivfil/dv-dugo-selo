@@ -1,0 +1,22 @@
+---
+/**
+ * /admin — Sveltia CMS za tajništvo (novosti, jelovnik, dokumenti, galerija).
+ * Git-based: svaka izmjena je commit u repozitorij, nakon čega se stranica automatski ponovno objavljuje.
+ * Konfiguracija: public/admin/config.yml. Stranica namjerno ne koristi BaseLayout (CMS ima vlastito sučelje).
+ */
+---
+
+<!doctype html>
+<html lang="hr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Uređivanje sadržaja | DV Dugo Selo</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link href="/admin/config.yml" type="application/yaml" rel="cms-config-url" />
+  </head>
+  <body>
+    <script is:inline src="https://cdn.jsdelivr.net/npm/@sveltia/cms@0.217.0/dist/sveltia-cms.js"></script>
+  </body>
+</html>

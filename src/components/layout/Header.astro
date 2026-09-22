@@ -1,0 +1,167 @@
+---
+/**
+ * Header — ljepljivo zaglavlje s logotipom i glavnim izbornikom iz site.nav.
+ * ≥ 1024px (64rem): vodoravni izbornik (9 stavki) s kratkim oznakama (`short`), bez prelamanja.
+ * < 1024px: gumb izbornika (48×48 px) otvara panel preko cijelog ekrana s punim oznakama.
+ * Breakpointi su u rem jedinicama, pa pri uvećanom sistemskom fontu izbornik ranije prelazi u mobilni.
+ */
+import { site } from '../../config/site';
+import Logo from '../ui/Logo.astro';
+import Icon from '../ui/Icon.astro';
+
+// Putanja bez podadrese (base) i završne kose crte, za usporedbu s href-ovima iz site.nav
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const path = Astro.url.pathname.slice(base.length).replace(/\/$/, '') || '/';
+const isActive = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`));
+---
+
+<header class="sticky top-0 z-50 border-b border-line bg-surface">
+  <div class="container-site flex min-h-[4.5rem] items-center justify-between gap-4 py-2">
+    <a href="/" class="-m-1 min-w-0 rounded-lg p-1 no-underline" aria-label={`${site.name}, početna stranica`}>
+      <Logo />
+    </a>
+
+    <nav aria-label="Glavni izbornik" class="hidden lg:block">
+      <ul class="flex items-center gap-0.5 xl:gap-1">
+        {
+          site.nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                title={item.short !== item.label ? item.label : undefined}
+                class:list={[
+                  'nav-link relative inline-flex min-h-11 items-center rounded-[var(--radius-control)] px-2 font-heading text-[0.9rem] font-semibold whitespace-nowrap no-underline transition-colors xl:px-3 xl:text-[0.95rem]',
+                  item.highlight ? 'bg-accent-soft text-ink hover:bg-accent' : 'text-ink hover:bg-brand-soft hover:text-brand-ink',
+                ]}>
+                {item.highlight && <Icon name="Heart" size={16} class="mr-1.5 text-accent-ink" />}
+                {item.short}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <button
+      type="button"
+      class="menu-toggle btn btn-outline h-12 w-12 shrink-0 !p-0 lg:hidden"
+      aria-expanded="false"
+      aria-controls="mobilni-izbornik">
+      <span class="icon-open"><Icon name="Menu" size={24} /></span>
+      <span class="icon-close hidden"><Icon name="X" size={24} /></span>
+      <span class="visually-hidden menu-label">Otvori izbornik</span>
+    </button>
+  </div>
+
+  <div id="mobilni-izbornik" class="mobile-panel fixed inset-x-0 top-[var(--header-h,4.5rem)] bottom-0 hidden overflow-y-auto border-t border-line bg-bg lg:hidden">
+    <nav aria-label="Glavni izbornik" class="container-site py-6">
+      <ul class="grid gap-2">
+        {
+          site.nav.map((item, i) => (
+            <li class="mobile-item" style={`--i:${i}`}>
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                class:list={[
+                  'flex min-h-14 items-center justify-between gap-3 rounded-[var(--radius-control)] border px-4 py-3 font-heading text-lg font-semibold no-underline',
+                  item.highlight ? 'border-accent bg-accent-soft text-ink' : 'border-line bg-surface text-ink',
+                ]}>
+                <span>{item.label}</span>
+                <Icon name="ChevronRight" size={20} class="shrink-0 text-muted" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mt-6 grid gap-3 rounded-[var(--radius-card)] bg-surface-2 p-4 text-base">
+        <a href={`tel:${site.contact.phoneHref}`} class="inline-flex min-h-11 items-center gap-2 font-semibold">
+          <Icon name="Phone" size={20} />
+          {site.contact.phone}
+        </a>
+        <a href={`mailto:${site.contact.email}`} class="inline-flex min-h-11 items-center gap-2 font-semibold">
+          <Icon name="Mail" size={20} />
+          {site.contact.email}
+        </a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav-link[aria-current='page']:not(.bg-accent-soft) {
+    color: var(--c-brandInk);
+    background: var(--c-brandSoft);
+  }
+  .nav-link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.3rem;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+  .mobile-item a[aria-current='page'] {
+    border-color: var(--c-brand);
+    box-shadow: inset 4px 0 0 var(--c-brand);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-panel.is-open .mobile-item {
+      animation: item-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation-delay: calc(var(--i) * 30ms);
+    }
+  }
+  @keyframes item-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+</style>
+
+<script>
+  /** Mobilni izbornik: otvaranje/zatvaranje, Escape, zaključavanje scrolla, vraćanje fokusa. */
+  function initMenu() {
+    const header = document.querySelector('header');
+    const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+    const panel = document.getElementById('mobilni-izbornik');
+    if (!header || !toggle || !panel) return;
+
+    // Globalni slušači vrijede samo za trenutnu stranicu (View Transitions ne ponovno učitava dokument).
+    const ac = new AbortController();
+    document.addEventListener('astro:before-swap', () => ac.abort(), { once: true });
+
+    const setHeaderHeight = () =>
+      document.documentElement.style.setProperty('--header-h', `${header.getBoundingClientRect().height}px`);
+
+    const setOpen = (open: boolean, restoreFocus = true) => {
+      setHeaderHeight();
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.querySelector('.menu-label')!.textContent = open ? 'Zatvori izbornik' : 'Otvori izbornik';
+      toggle.querySelector('.icon-open')!.classList.toggle('hidden', open);
+      toggle.querySelector('.icon-close')!.classList.toggle('hidden', !open);
+      panel.classList.toggle('hidden', !open);
+      panel.classList.toggle('is-open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+      if (open) panel.querySelector<HTMLAnchorElement>('a')?.focus();
+      else if (restoreFocus) toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    panel.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false, false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') setOpen(false);
+    }, { signal: ac.signal });
+    // Ako se prozor proširi na desktop dok je izbornik otvoren
+    window.matchMedia('(min-width: 64rem)').addEventListener('change', (e) => {
+      if (e.matches && toggle.getAttribute('aria-expanded') === 'true') setOpen(false, false);
+    }, { signal: ac.signal });
+  }
+
+  document.addEventListener('astro:page-load', initMenu);
+  document.addEventListener('astro:before-swap', () => (document.body.style.overflow = ''));
+</script>

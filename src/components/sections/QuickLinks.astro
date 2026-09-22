@@ -1,0 +1,47 @@
+---
+/**
+ * QuickLinks — brze poveznice na najčešće radnje roditelja.
+ * Prva poveznica je istaknuta (plava pločica), ostale su neutralne.
+ */
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  links: { label: string; text: string; href: string; icon: string }[];
+  title?: string;
+}
+
+const { links, title = 'Brze poveznice' } = Astro.props;
+---
+
+<section aria-labelledby="brze-poveznice" class="container-site relative z-10 -mt-6 lg:-mt-12">
+  <h2 id="brze-poveznice" class="visually-hidden">{title}</h2>
+  <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    {
+      links.map((link, i) => (
+        <li data-reveal style={`--reveal-i:${i}`}>
+          <a
+            href={link.href}
+            class:list={[
+              'interactive-card group flex h-full min-h-24 items-start gap-4 rounded-[var(--radius-card)] border p-5 no-underline',
+              i === 0 ? 'on-brand border-brand bg-brand text-on-brand' : 'border-line bg-surface text-ink shadow-[var(--shadow-card)]',
+            ]}>
+            <span
+              class:list={[
+                'grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-control)]',
+                i === 0 ? 'bg-accent text-on-accent' : 'bg-brand-soft text-brand-ink',
+              ]}>
+              <Icon name={link.icon} size={22} />
+            </span>
+            <span class="min-w-0">
+              <span class="flex items-center gap-1 font-heading text-lg font-semibold">
+                {link.label}
+                <Icon name="ArrowRight" size={18} class="shrink-0 transition-transform group-hover:translate-x-1" />
+              </span>
+              <span class:list={['mt-0.5 block text-[0.95rem]', i === 0 ? 'text-on-brand/90' : 'text-muted']}>{link.text}</span>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>

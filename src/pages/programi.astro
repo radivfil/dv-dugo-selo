@@ -1,0 +1,66 @@
+---
+/** Programi i skupine: bento grid po dobnim skupinama + dnevni ritam. */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/sections/PageHeader.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import ProgramBento from '../components/sections/ProgramBento.astro';
+import CtaBand from '../components/sections/CtaBand.astro';
+import { site } from '../config/site';
+
+const groups = [
+  { key: 'redoviti', title: 'Redoviti programi', lead: 'Desetosatni program u jaslicama i vrtiću te obvezni program predškole.', items: site.programs.filter((p) => p.category !== 'posebni') },
+  { key: 'posebni', title: 'Posebni programi', lead: 'Kraći programi koji se odvijaju uz redoviti program, prema interesu djece i roditelja.', items: site.programs.filter((p) => p.category === 'posebni') },
+];
+
+const day = site.dailyRhythm;
+---
+
+<BaseLayout title="Programi i skupine" description="Jaslice, vrtićke skupine, predškola i posebni programi DV Dugo Selo, organizirani po dobnim skupinama.">
+  <PageHeader
+    title="Programi i skupine"
+    eyebrow="Od 1. godine do polaska u školu"
+    lead="Skupine su organizirane po dobi djeteta. Svaki program prati Nacionalni kurikulum, a sadržaje biramo prema interesima skupine."
+  />
+
+  {
+    groups.map((g, gi) => (
+      <section class:list={['section', gi % 2 === 1 && 'bg-surface-2']} aria-labelledby={g.key}>
+        <div class="container-site">
+          <SectionHeading id={g.key} title={g.title} lead={g.lead} />
+          <ProgramBento programs={g.items} />
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="section" aria-labelledby="dan">
+    <div class="container-site grid gap-10 lg:grid-cols-[1fr_1.3fr]">
+      <SectionHeading
+        id="dan"
+        eyebrow="Dnevni ritam"
+        title="Kako izgleda dan u vrtiću"
+        lead="Ritam je okvirni i prilagođava se dobi skupine i vremenu. Jaslice imaju više vremena za odmor i obroke."
+      />
+      <ol class="relative grid gap-0 border-l-2 border-line pl-6">
+        {
+          day.map((d, i) => (
+            <li class="relative pb-6 last:pb-0" data-reveal style={`--reveal-i:${i}`}>
+              <span class="absolute top-1.5 -left-[1.95rem] h-4 w-4 rounded-full border-4 border-bg bg-brand" aria-hidden="true" />
+              <p class="font-heading font-semibold text-brand-ink">{d.time}</p>
+              <p>{d.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <div class="pb-16 md:pb-24">
+    <CtaBand
+      title="Upis u program"
+      text="U sve redovite programe upisuje se kroz sustav e-Upisi. Za posebne programe prijava ide preko odgojitelja skupine na početku pedagoške godine."
+      cta={{ label: 'Upisi', href: '/upisi' }}
+      icon="ClipboardPen"
+    />
+  </div>
+</BaseLayout>

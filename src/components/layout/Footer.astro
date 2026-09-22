@@ -1,0 +1,82 @@
+---
+/**
+ * Footer — podnožje na plavoj podlozi: identitet i badge, kontakt, radno vrijeme,
+ * cijeli izbornik (pune oznake) i pravne poveznice. Svi podaci iz src/config/site.ts.
+ */
+import { site } from '../../config/site';
+import Logo from '../ui/Logo.astro';
+import Icon from '../ui/Icon.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="on-brand mt-auto bg-brand text-on-brand">
+  <div class="container-site grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+    <div class="space-y-4">
+      <Logo inverse />
+      <p class="max-w-xs text-on-brand/90">{site.description}</p>
+      <p class="inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1.5 text-sm font-bold text-on-accent">
+        <Icon name={site.badge.icon} size={18} />
+        {site.badge.title}
+      </p>
+    </div>
+
+    <div>
+      <h2 class="mb-4 text-lg text-on-brand">Kontakt</h2>
+      <address class="space-y-2 not-italic">
+        <p>{site.contact.address}<br />{site.contact.postalCity}</p>
+        <p>
+          <a href={`tel:${site.contact.phoneHref}`} class="inline-flex min-h-11 items-center gap-2 text-on-brand">
+            <Icon name="Phone" size={18} />{site.contact.phone}
+          </a>
+        </p>
+        <p>
+          <a href={`mailto:${site.contact.email}`} class="inline-flex min-h-11 items-center gap-2 text-on-brand">
+            <Icon name="Mail" size={18} />{site.contact.email}
+          </a>
+        </p>
+      </address>
+    </div>
+
+    <div>
+      <h2 class="mb-4 text-lg text-on-brand">Radno vrijeme</h2>
+      <dl class="space-y-3">
+        {
+          site.hours.map((h) => (
+            <div>
+              <dt class="text-sm font-semibold text-on-brand/80">{h.label}</dt>
+              <dd>{h.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <nav aria-label="Izbornik u podnožju">
+      <h2 class="mb-4 text-lg text-on-brand">Stranice</h2>
+      <ul class="grid gap-0.5">
+        {
+          site.nav.map((item) => (
+            <li>
+              <a href={item.href} class="inline-flex min-h-11 items-center text-on-brand no-underline underline-offset-4 hover:underline">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <div class="border-t border-on-brand/20">
+    <div class="container-site flex flex-col gap-2 py-5 text-sm text-on-brand/90 md:flex-row md:items-center md:justify-between">
+      <p>
+        {`© ${year} ${site.legalName}.`} Osnivač: <a href={site.founderUrl} class="text-on-brand" rel="noopener">{site.founder}</a>
+      </p>
+      <ul class="flex flex-wrap gap-x-5 gap-y-1">
+        <li><a href="/pristupacnost" class="inline-flex min-h-11 items-center text-on-brand">Izjava o pristupačnosti</a></li>
+        <li><a href="/dokumenti?kategorija=Pravo%20na%20pristup%20informacijama" class="inline-flex min-h-11 items-center text-on-brand">Pristup informacijama</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>

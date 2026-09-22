@@ -1,0 +1,84 @@
+---
+/**
+ * FormShell — okvir za sve obrasce: sažetak grešaka, polja (slot), zaštita od spama,
+ * napomena o privatnosti, gumb za slanje i animirana potvrda uspjeha.
+ * Logiku slanja dodaje src/scripts/forms.ts za svaki <form data-form="...">.
+ *
+ * Slotovi: zadani (polja), "success" (dodatni sadržaj nakon uspjeha, npr. PDF i upload skena).
+ */
+import type { SubmissionType } from '../../lib/submissions';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  type: SubmissionType;
+  submitLabel: string;
+  successTitle: string;
+  successText: string;
+  /** id za poveznice (npr. /kontakt#obrazac) */
+  id?: string;
+}
+
+const { type, submitLabel, successTitle, successText, id } = Astro.props;
+const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+---
+
+<div class="form-shell card p-5 sm:p-8" id={id} data-form-shell>
+  <form data-form={type} novalidate class="grid gap-5">
+    {
+      demo && (
+        <p class="flex gap-3 rounded-[var(--radius-control)] border border-accent bg-accent-soft p-3 text-sm">
+          <Icon name="Info" size={20} class="mt-0.5 shrink-0 text-accent-ink" />
+          <span>
+            <strong>Demo način:</strong> prijava se sprema samo u ovaj preglednik i vidi se na stranici <a href="/admin/prijave">/admin/prijave</a>.
+          </span>
+        </p>
+      )
+    }
+
+    <div class="error-summary hidden focus:outline-none rounded-[var(--radius-control)] border-2 border-danger bg-danger-soft p-4" tabindex="-1" role="alert" data-error-summary>
+      <p class="font-bold text-danger">Provjerite označena polja:</p>
+      <ul class="mt-2 list-disc pl-5" data-error-list></ul>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <slot />
+    </div>
+
+    <!-- Zaštita od automatiziranog spama: ljudi ovo polje ne vide ni ne ispunjavaju -->
+    <div class="hidden" aria-hidden="true">
+      <label>Ne ispunjavati <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+    </div>
+
+    <p class="text-sm text-muted">
+      Polja označena sa <span class="text-danger">*</span> su obavezna. Podatke obrađujemo isključivo radi rješavanja ove prijave, u skladu s Općom uredbom o
+      zaštiti podataka (GDPR).
+    </p>
+
+    <p class="text-danger font-semibold hidden" role="alert" data-submit-error></p>
+
+    <div>
+      <button type="submit" class="btn btn-accent w-full sm:w-auto" data-submit>
+        <span data-submit-label>{submitLabel}</span>
+        <Icon name="Send" size={20} class="btn-arrow" />
+      </button>
+    </div>
+  </form>
+
+  <div class="success-panel hidden text-center focus:outline-none" data-success tabindex="-1" aria-live="polite">
+    <svg class="success-check mx-auto h-20 w-20 text-success" viewBox="0 0 52 52" aria-hidden="true">
+      <circle cx="26" cy="26" r="24" fill="none" stroke="currentColor" stroke-width="3"></circle>
+      <path d="M15 27l7 7 15-15" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+    <h2 class="mt-4 text-2xl">{successTitle}</h2>
+    <p class="mx-auto mt-2 max-w-[48ch] text-muted">{successText}</p>
+    <p class="mt-2 text-sm text-muted">Broj prijave: <span class="font-mono font-semibold text-ink" data-success-id></span></p>
+    <div class="mt-6 text-left">
+      <slot name="success" />
+    </div>
+    <button type="button" class="btn btn-outline mt-6" data-reset>Nova prijava</button>
+  </div>
+</div>
+
+<script>
+  import '../../scripts/forms';
+</script>

@@ -1,0 +1,41 @@
+---
+/** Pojedinačna novost. Tijelo je Markdown iz CMS-a. */
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/sections/PageHeader.astro';
+import Photo from '../../components/ui/Photo.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { formatDate } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const news = await getCollection('novosti');
+  return news.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={entry.data.title} description={entry.data.summary}>
+  <PageHeader title={entry.data.title} crumbs={[{ label: 'Novosti', href: '/novosti' }]}>
+    <p class="mt-4 flex items-center gap-2 font-semibold text-muted">
+      <Icon name="Calendar" size={18} />
+      <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+    </p>
+  </PageHeader>
+  <article class="section">
+    <div class="container-site grid gap-10 lg:grid-cols-[1fr_22rem]">
+      <div class="prose-site">
+        <p class="lead !text-ink">{entry.data.summary}</p>
+        <Content />
+      </div>
+      <Photo src={entry.data.image} alt={entry.data.imageAlt ?? entry.data.title} ratio="4 / 3" class="lg:sticky lg:top-28" />
+    </div>
+    <div class="container-site mt-12">
+      <a href="/novosti" class="btn btn-outline">
+        <Icon name="ArrowLeft" size={20} />
+        Sve novosti
+      </a>
+    </div>
+  </article>
+</BaseLayout>

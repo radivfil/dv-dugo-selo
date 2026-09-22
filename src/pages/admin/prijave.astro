@@ -1,0 +1,421 @@
+---
+/**
+ * /admin/prijave — nadzorna ploča za tajništvo: sve prijave iz obrazaca,
+ * filtar po tipu i statusu, pretraga, promjena statusa, pregled skena i izvoz u CSV.
+ * Supabase način: prijava djelatnika (Supabase Auth). Demo način: podaci iz ovog preglednika.
+ * Stranica se ne indeksira i nema javnu poveznicu u izborniku.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Logo from '../../components/ui/Logo.astro';
+import Icon from '../../components/ui/Icon.astro';
+
+const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+---
+
+<BaseLayout title="Prijave (administracija)" noindex bare>
+  <div class="border-b border-line bg-surface">
+    <div class="container-site flex min-h-16 flex-wrap items-center justify-between gap-3 py-2">
+      <a href="/" class="no-underline" aria-label="Povratak na javnu stranicu"><Logo /></a>
+      <div class="flex flex-wrap items-center gap-2">
+        {
+          demo && (
+            <span class="rounded-full border border-accent bg-accent-soft px-3 py-1 text-sm font-bold">Demo način</span>
+          )
+        }
+        <a href="/admin/" class="btn btn-outline !min-h-11 !py-2 text-sm">
+          <Icon name="PenLine" size={18} />Uređivanje sadržaja
+        </a>
+        <button type="button" class="btn btn-outline hidden !min-h-11 !py-2 text-sm" data-logout>
+          <Icon name="LogOut" size={18} />Odjava
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-site py-8 md:py-10">
+    <h1 class="text-3xl md:text-4xl">Prijave iz obrazaca</h1>
+    {
+      demo && (
+        <p class="mt-3 max-w-[70ch] text-muted">
+          Supabase još nije povezan: prikazane su prijave poslane iz ovog preglednika (ili tri primjera). Nakon upisa ključeva u <code>.env</code>{" "}
+          ovdje se prikazuju sve prijave iz baze, a pristup traži prijavu djelatnika.
+        </p>
+      )
+    }
+
+    <!-- Prijava djelatnika (samo Supabase način) -->
+    <form class="card mt-8 hidden max-w-md gap-4 p-6" data-login novalidate>
+      <h2 class="text-xl">Prijava djelatnika</h2>
+      <div>
+        <label for="login-email" class="field-label">E-pošta</label>
+        <input id="login-email" type="email" class="field-input" autocomplete="username" required />
+      </div>
+      <div>
+        <label for="login-pass" class="field-label">Lozinka</label>
+        <input id="login-pass" type="password" class="field-input" autocomplete="current-password" required />
+      </div>
+      <p class="field-error" role="alert" data-login-error></p>
+      <button type="submit" class="btn btn-brand"><Icon name="LogIn" size={20} />Prijava</button>
+    </form>
+
+    <div class="hidden" data-dashboard>
+      <!-- Brojači po statusu -->
+      <dl class="mt-8 grid gap-3 sm:grid-cols-3" data-stats>
+        <div class="card p-5"><dt class="text-muted">Nove</dt><dd class="font-heading text-3xl font-semibold text-brand-ink" data-stat="nova">0</dd></div>
+        <div class="card p-5"><dt class="text-muted">U obradi</dt><dd class="font-heading text-3xl font-semibold text-accent-ink" data-stat="u_obradi">0</dd></div>
+        <div class="card p-5"><dt class="text-muted">Riješeno</dt><dd class="font-heading text-3xl font-semibold text-success" data-stat="rijeseno">0</dd></div>
+      </dl>
+
+      <!-- Filtri -->
+      <div class="card mt-6 grid gap-4 p-5 md:grid-cols-[1fr_12rem_auto] md:items-end">
+        <div role="group" aria-label="Tip prijave" class="flex flex-wrap gap-2 md:col-span-3" data-type-filter>
+          <button type="button" class="filter-chip" aria-pressed="true" data-type="">Sve <span data-count=""></span></button>
+          <button type="button" class="filter-chip" aria-pressed="false" data-type="izostanak">Izostanci <span data-count="izostanak"></span></button>
+          <button type="button" class="filter-chip" aria-pressed="false" data-type="ispis">Ispisi <span data-count="ispis"></span></button>
+          <button type="button" class="filter-chip" aria-pressed="false" data-type="kontakt">Kontakt <span data-count="kontakt"></span></button>
+        </div>
+        <div>
+          <label for="adm-q" class="field-label">Pretraga</label>
+          <input id="adm-q" type="search" class="field-input" placeholder="Ime djeteta, roditelja ili e-pošta" />
+        </div>
+        <div>
+          <label for="adm-status" class="field-label">Status</label>
+          <select id="adm-status" class="field-input">
+            <option value="">Svi statusi</option>
+            <option value="nova">Nova</option>
+            <option value="u_obradi">U obradi</option>
+            <option value="rijeseno">Riješeno</option>
+          </select>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn btn-outline" data-refresh><Icon name="RefreshCw" size={18} /><span class="visually-hidden">Osvježi</span></button>
+          <button type="button" class="btn btn-outline" data-export><Icon name="Download" size={18} />CSV</button>
+        </div>
+      </div>
+
+      <p class="mt-5 mb-3 font-semibold text-muted" aria-live="polite" data-result-count></p>
+
+      <div class="card overflow-x-auto">
+        <table class="adm-table w-full min-w-[68rem] text-left text-[0.95rem]">
+          <caption class="visually-hidden">Popis prijava</caption>
+          <thead class="bg-surface-2">
+            <tr>
+              <th scope="col" class="p-3">Zaprimljeno</th>
+              <th scope="col" class="p-3">Tip</th>
+              <th scope="col" class="p-3">Dijete</th>
+              <th scope="col" class="p-3">Roditelj</th>
+              <th scope="col" class="p-3">Datum</th>
+              <th scope="col" class="p-3">Detalji</th>
+              <th scope="col" class="p-3">Status</th>
+            </tr>
+          </thead>
+          <tbody data-rows></tbody>
+        </table>
+        <div class="grid place-items-center gap-2 p-10 text-center text-muted" data-empty hidden>
+          <Icon name="Inbox" size={36} />
+          <p>Nema prijava koje odgovaraju filtrima.</p>
+        </div>
+      </div>
+
+      {
+        demo && (
+          <button type="button" class="btn btn-outline mt-6 text-sm" data-reset-demo>
+            Vrati početne demo podatke
+          </button>
+        )
+      }
+    </div>
+
+    <p class="mt-6 font-semibold text-danger" role="alert" data-load-error></p>
+  </div>
+</BaseLayout>
+
+<style>
+  .filter-chip {
+    min-height: 2.75rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    border: 2px solid var(--c-line);
+    background: var(--c-surface);
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .filter-chip[aria-pressed='true'] {
+    background: var(--c-brand);
+    border-color: var(--c-brand);
+    color: var(--c-onBrand);
+  }
+  .filter-chip span {
+    font-weight: 400;
+    opacity: 0.85;
+  }
+  :global(.adm-table td) {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-top: 1px solid var(--c-line);
+  }
+  :global(.type-pill) {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  :global(.type-izostanak) {
+    background: var(--c-brandSoft);
+    color: var(--c-brandInk);
+  }
+  :global(.type-ispis) {
+    background: var(--c-accentSoft);
+    color: var(--c-accentInk);
+  }
+  :global(.type-kontakt) {
+    background: var(--c-surface2);
+    color: var(--c-ink);
+  }
+  :global(.status-select) {
+    min-height: 2.75rem;
+    padding: 0.35rem 0.5rem;
+    border: 2px solid var(--c-line);
+    border-radius: var(--radius-control);
+    background: var(--c-surface);
+    font-weight: 700;
+  }
+  :global(.status-select[data-status='nova']) {
+    border-color: var(--c-brand);
+  }
+  :global(.status-select[data-status='rijeseno']) {
+    border-color: var(--c-success);
+  }
+  :global(.status-select.saved) {
+    outline: 3px solid var(--c-success);
+  }
+</style>
+
+<script>
+  import {
+    isDemoMode,
+    listSubmissions,
+    updateStatus,
+    getAttachmentUrl,
+    resetDemoData,
+    adminSession,
+    adminSignIn,
+    adminSignOut,
+    TYPE_LABELS,
+    STATUS_LABELS,
+    type Submission,
+    type SubmissionStatus,
+  } from '../../lib/submissions';
+  import { formatDateShort } from '../../lib/format';
+
+  const DETAIL_LABELS: Record<string, string> = {
+    location: 'Objekt',
+    group: 'Skupina',
+    date_to: 'Do',
+    reason: 'Razlog',
+    note: 'Napomena',
+    phone: 'Telefon',
+    birth_date: 'Datum rođenja',
+    address: 'Adresa',
+    subject: 'Tema',
+    message: 'Poruka',
+    consent: 'Izjava potvrđena',
+  };
+
+  const $ = <T extends Element = HTMLElement>(sel: string) => document.querySelector<T>(sel)!;
+  const el = (tag: string, cls = '', text = '') => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  };
+
+  let all: Submission[] = [];
+  let typeFilter = '';
+
+  function filtered() {
+    const q = $<HTMLInputElement>('#adm-q').value.trim().toLowerCase();
+    const status = $<HTMLSelectElement>('#adm-status').value;
+    return all.filter(
+      (s) =>
+        (!typeFilter || s.type === typeFilter) &&
+        (!status || s.status === status) &&
+        (!q || [s.child_name, s.parent_name, s.parent_contact].some((v) => v?.toLowerCase().includes(q))),
+    );
+  }
+
+  function renderRow(s: Submission) {
+    const tr = document.createElement('tr');
+
+    const created = new Date(s.created_at);
+    tr.append(el('td', 'whitespace-nowrap', `${formatDateShort(created)} ${created.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' })}`));
+
+    const typeTd = el('td');
+    typeTd.append(el('span', `type-pill type-${s.type}`, TYPE_LABELS[s.type]));
+    tr.append(typeTd);
+
+    tr.append(el('td', 'font-semibold', s.child_name ?? '—'));
+
+    const parentTd = el('td');
+    parentTd.append(el('span', 'block', s.parent_name));
+    const mail = el('a', 'flex min-h-11 items-center text-sm whitespace-nowrap', s.parent_contact) as HTMLAnchorElement;
+    mail.href = `mailto:${s.parent_contact}`;
+    parentTd.append(mail);
+    tr.append(parentTd);
+
+    const dateText = s.date ? formatDateShort(s.date) + (s.details.date_to ? ` – ${formatDateShort(s.details.date_to)}` : '') : '—';
+    tr.append(el('td', 'whitespace-nowrap', dateText));
+
+    const detailsTd = el('td', 'min-w-[16rem] max-w-[24rem]');
+    const entries = Object.entries(s.details).filter(([k]) => k !== 'date_to');
+    if (entries.length) {
+      const details = el('details');
+      details.append(el('summary', 'cursor-pointer font-semibold text-brand-ink', `Prikaži (${entries.length})`));
+      const dl = el('dl', 'mt-2 grid gap-1 text-sm');
+      for (const [k, v] of entries) {
+        const row = el('div');
+        const isDate = /^\d{4}-\d{2}-\d{2}$/.test(v);
+        row.append(el('dt', 'font-bold', DETAIL_LABELS[k] ?? k), el('dd', 'text-muted whitespace-pre-line', isDate ? formatDateShort(v) : v));
+        dl.append(row);
+      }
+      details.append(dl);
+      detailsTd.append(details);
+    }
+    if (s.attachment_path) {
+      const btn = el('button', 'mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-brand-ink underline', 'Potpisani sken') as HTMLButtonElement;
+      btn.type = 'button';
+      btn.addEventListener('click', async () => {
+        const url = await getAttachmentUrl(s.attachment_path!);
+        if (url) window.open(url, '_blank', 'noopener');
+        else btn.textContent = 'Sken nije dostupan za pregled u demo načinu';
+      });
+      detailsTd.append(btn);
+    }
+    tr.append(detailsTd);
+
+    const statusTd = el('td');
+    const select = el('select', 'status-select') as HTMLSelectElement;
+    select.setAttribute('aria-label', `Status prijave: ${s.child_name ?? s.parent_name}`);
+    for (const [value, label] of Object.entries(STATUS_LABELS)) {
+      const o = el('option', '', label) as HTMLOptionElement;
+      o.value = value;
+      o.selected = value === s.status;
+      select.append(o);
+    }
+    select.dataset.status = s.status;
+    select.addEventListener('change', async () => {
+      const status = select.value as SubmissionStatus;
+      try {
+        await updateStatus(s.id, status);
+        s.status = status;
+        select.dataset.status = status;
+        select.classList.add('saved');
+        setTimeout(() => select.classList.remove('saved'), 900);
+        renderStats();
+      } catch (err) {
+        select.value = s.status;
+        $('[data-load-error]').textContent = `Status nije spremljen: ${(err as Error).message}`;
+      }
+    });
+    statusTd.append(select);
+    tr.append(statusTd);
+    return tr;
+  }
+
+  function renderStats() {
+    for (const key of ['nova', 'u_obradi', 'rijeseno']) $(`[data-stat="${key}"]`).textContent = String(all.filter((s) => s.status === key).length);
+    document.querySelectorAll<HTMLElement>('[data-count]').forEach((c) => {
+      const t = c.dataset.count;
+      c.textContent = `(${t ? all.filter((s) => s.type === t).length : all.length})`;
+    });
+  }
+
+  function render() {
+    const rows = filtered();
+    $('[data-rows]').replaceChildren(...rows.map(renderRow));
+    $('[data-empty]').hidden = rows.length > 0;
+    $('[data-result-count]').textContent = `Prikazano prijava: ${rows.length} od ${all.length}`;
+    renderStats();
+  }
+
+  async function load() {
+    $('[data-load-error]').textContent = '';
+    try {
+      all = await listSubmissions();
+      render();
+    } catch (err) {
+      $('[data-load-error]').textContent = `Prijave se ne mogu učitati: ${(err as Error).message}`;
+    }
+  }
+
+  function exportCsv() {
+    const header = ['Zaprimljeno', 'Tip', 'Dijete', 'Roditelj', 'Kontakt', 'Datum', 'Status', 'Detalji'];
+    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const lines = filtered().map((s) =>
+      [s.created_at, TYPE_LABELS[s.type], s.child_name, s.parent_name, s.parent_contact, s.date, STATUS_LABELS[s.status], JSON.stringify(s.details)]
+        .map(esc)
+        .join(';'),
+    );
+    // BOM osigurava ispravne hrvatske znakove u Excelu
+    const blob = new Blob(['﻿' + [header.map(esc).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = el('a') as HTMLAnchorElement;
+    a.href = URL.createObjectURL(blob);
+    a.download = `prijave-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  async function showDashboard() {
+    $('[data-login]').classList.add('hidden');
+    $('[data-dashboard]').classList.remove('hidden');
+    if (!isDemoMode) $('[data-logout]').classList.remove('hidden');
+    await load();
+  }
+
+  async function init() {
+    if (!document.querySelector('[data-dashboard]')) return;
+
+    $('[data-type-filter]').addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-type]');
+      if (!btn) return;
+      typeFilter = btn.dataset.type!;
+      document.querySelectorAll('[data-type-filter] button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      render();
+    });
+    $('#adm-q').addEventListener('input', render);
+    $('#adm-status').addEventListener('change', render);
+    $('[data-refresh]').addEventListener('click', load);
+    $('[data-export]').addEventListener('click', exportCsv);
+    document.querySelector('[data-reset-demo]')?.addEventListener('click', () => {
+      resetDemoData();
+      load();
+    });
+    $('[data-logout]').addEventListener('click', async () => {
+      await adminSignOut();
+      location.reload();
+    });
+
+    const login = $<HTMLFormElement>('[data-login]');
+    login.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const error = $('[data-login-error]');
+      error.textContent = '';
+      try {
+        await adminSignIn($<HTMLInputElement>('#login-email').value, $<HTMLInputElement>('#login-pass').value);
+        await showDashboard();
+      } catch (err) {
+        error.textContent = (err as Error).message;
+      }
+    });
+
+    if (await adminSession()) await showDashboard();
+    else {
+      login.classList.remove('hidden');
+      login.classList.add('grid');
+    }
+  }
+
+  document.addEventListener('astro:page-load', init);
+</script>

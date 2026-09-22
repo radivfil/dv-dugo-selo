@@ -1,0 +1,32 @@
+{
+  "name": "vrtic-template",
+  "version": "1.0.0",
+  "description": "Ponovno iskoristiv Astro template za web stranice vrtića i škola — demo: DV Dugo Selo",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro",
+    "pdfs": "node scripts/make-placeholder-pdfs.mjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@lucide/astro": "^1.47.0",
+    "@supabase/supabase-js": "^2.116.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.3",
+    "jspdf": "^4.2.1",
+    "tailwindcss": "^4.3.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  },
+  "private": true,
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,212 @@
+---
+/**
+ * Obrazac: ispis djeteta (hibridno)
+ *  1. roditelj ispunjava obrazac → zapis u submissions (tip "ispis")
+ *  2. preuzima generirani PDF zahtjeva i vlastoručno ga potpisuje
+ *  3. učitava sken/fotografiju potpisanog zahtjeva → Storage (vidljivo u /admin/prijave)
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/sections/PageHeader.astro';
+import FormShell from '../../components/forms/FormShell.astro';
+import FormField from '../../components/forms/FormField.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { site } from '../../config/site';
+
+const locations = site.locations.map((l) => l.name);
+const steps = [
+  { title: 'Ispunite zahtjev', text: 'Podaci se odmah evidentiraju u tajništvu.' },
+  { title: 'Preuzmite i potpišite PDF', text: 'Zahtjev je unaprijed popunjen, treba ga samo potpisati.' },
+  { title: 'Učitajte potpisani sken', text: 'Fotografija mobitelom je dovoljna. Može i osobno u tajništvu.' },
+];
+---
+
+<BaseLayout title="Ispis djeteta" description="Elektronički zahtjev za ispis djeteta iz vrtića s PDF-om za potpis i učitavanjem skena.">
+  <PageHeader
+    title="Ispis djeteta iz vrtića"
+    crumbs={[{ label: 'Kutak za roditelje', href: '/roditelji' }]}
+    lead="Zahtjev za ispis predaje se najmanje 15 dana prije posljednjeg dana u vrtiću. Cijeli postupak možete obaviti ovdje, bez dolaska u tajništvo."
+  />
+
+  <section class="section">
+    <div class="container-site">
+      <ol class="mb-8 grid gap-3 md:grid-cols-3" aria-label="Postupak ispisa">
+        {
+          steps.map((s, i) => (
+            <li class="flex gap-3 rounded-[var(--radius-card)] border border-line bg-surface-2 p-4" data-step={i + 1}>
+              <span class="step-num grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand font-heading font-semibold text-on-brand">{i + 1}</span>
+              <span>
+                <span class="block font-heading font-semibold">{s.title}</span>
+                <span class="block text-sm text-muted">{s.text}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="mx-auto max-w-3xl">
+        <FormShell
+          type="ispis"
+          submitLabel="Pošalji zahtjev"
+          successTitle="Zahtjev je zaprimljen"
+          successText="Sad preuzmite zahtjev, potpišite ga i učitajte sken. Ispis je konačan kad tajništvo zaprimi potpisani zahtjev.">
+          <FormField name="child_name" label="Ime i prezime djeteta" map="child_name" required autocomplete="off" />
+          <FormField name="birth_date" label="Datum rođenja djeteta" type="date" required data-max-today />
+          <FormField name="location" label="Objekt" type="select" options={locations} required />
+          <FormField name="group" label="Skupina" autocomplete="off" />
+          <FormField
+            name="date"
+            label="Posljednji dan u vrtiću"
+            type="date"
+            map="date"
+            required
+            data-min-today
+            data-min-message="Datum ispisa ne može biti u prošlosti."
+          />
+          <FormField name="reason" label="Razlog ispisa" type="select" options={['Preseljenje', 'Polazak u školu', 'Prelazak u drugi vrtić', 'Ostalo']} />
+          <FormField name="parent_name" label="Ime i prezime roditelja / skrbnika" map="parent_name" required autocomplete="name" />
+          <FormField name="address" label="Adresa stanovanja" required autocomplete="street-address" />
+          <FormField name="parent_contact" label="E-pošta" type="email" map="parent_contact" required autocomplete="email" />
+          <FormField name="phone" label="Telefon" type="tel" required autocomplete="tel" />
+          <FormField name="note" label="Napomena" type="textarea" rows={3} class="sm:col-span-2" />
+          <FormField
+            name="consent"
+            type="checkbox"
+            required
+            class="sm:col-span-2"
+            label="Potvrđujem da sam roditelj ili skrbnik djeteta i da su navedeni podaci točni."
+          />
+
+          <div slot="success" class="grid gap-4" data-withdrawal-steps>
+            <div class="rounded-[var(--radius-card)] border border-line bg-surface-2 p-5">
+              <h3 class="flex items-center gap-2 text-lg"><span class="text-brand-ink">2.</span> Preuzmite zahtjev za potpis</h3>
+              <p class="mt-1 text-muted">PDF je popunjen vašim podacima. Ispišite ga i potpišite.</p>
+              <button type="button" class="btn btn-brand mt-3" data-download-pdf>
+                <Icon name="FileDown" size={20} />
+                <span data-pdf-label>Preuzmi PDF zahtjeva</span>
+              </button>
+              <p class="mt-2 hidden text-sm font-semibold text-danger" role="alert" data-pdf-error></p>
+            </div>
+
+            <div class="rounded-[var(--radius-card)] border border-line bg-surface-2 p-5">
+              <h3 class="flex items-center gap-2 text-lg"><span class="text-brand-ink">3.</span> Učitajte potpisani zahtjev</h3>
+              <form class="mt-3 grid gap-3" data-upload-form novalidate>
+                <div>
+                  <label for="scan" class="field-label">Sken ili fotografija (PDF, JPG ili PNG, do 10 MB)</label>
+                  <input
+                    id="scan"
+                    name="scan"
+                    type="file"
+                    required
+                    accept="application/pdf,image/jpeg,image/png,image/heic"
+                    aria-describedby="scan-error"
+                    class="field-input cursor-pointer file:mr-3 file:rounded-lg file:border-0 file:bg-brand-soft file:px-3 file:py-2 file:font-semibold file:text-brand-ink"
+                  />
+                  <span id="scan-error" class="field-error" role="alert"></span>
+                </div>
+                <button type="submit" class="btn btn-accent justify-self-start" data-upload-btn>
+                  <Icon name="Upload" size={20} />
+                  <span data-upload-label>Učitaj sken</span>
+                </button>
+              </form>
+              <p class="upload-done success-panel mt-3 hidden items-center gap-2 font-semibold text-success" data-upload-done tabindex="-1">
+                <Icon name="CircleCheck" size={22} />
+                Potpisani zahtjev je učitan. Tajništvo će vam potvrditi ispis e-poštom.
+              </p>
+            </div>
+          </div>
+        </FormShell>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { downloadWithdrawalPdf } from '../../lib/pdf';
+  import { uploadAttachment, type NewSubmission } from '../../lib/submissions';
+
+  function initWithdrawal() {
+    const shell = document.querySelector<HTMLElement>('[data-form-shell]');
+    const steps = document.querySelector<HTMLElement>('[data-withdrawal-steps]');
+    if (!shell || !steps || shell.dataset.withdrawalReady) return;
+    shell.dataset.withdrawalReady = 'true';
+
+    let current: { id: string; data: NewSubmission } | null = null;
+    const markStep = (n: number) =>
+      document.querySelectorAll<HTMLElement>('[data-step]').forEach((el) => {
+        const done = Number(el.dataset.step) < n;
+        el.classList.toggle('!border-success', done);
+        el.querySelector('.step-num')!.classList.toggle('!bg-success', done);
+      });
+
+    shell.addEventListener('submission:created', (e) => {
+      current = (e as CustomEvent).detail;
+      markStep(2);
+    });
+    shell.addEventListener('submission:reset', () => {
+      current = null;
+      markStep(1);
+      steps.querySelector<HTMLFormElement>('[data-upload-form]')!.classList.remove('hidden');
+      steps.querySelector('[data-upload-done]')!.classList.add('hidden');
+    });
+
+    const pdfBtn = steps.querySelector<HTMLButtonElement>('[data-download-pdf]')!;
+    const pdfLabel = steps.querySelector<HTMLElement>('[data-pdf-label]')!;
+    const pdfError = steps.querySelector<HTMLElement>('[data-pdf-error]')!;
+    pdfBtn.addEventListener('click', async () => {
+      if (!current) return;
+      pdfBtn.disabled = true;
+      pdfLabel.textContent = 'Pripremam PDF…';
+      pdfError.classList.add('hidden');
+      try {
+        await downloadWithdrawalPdf(current.id, current.data);
+        markStep(3);
+      } catch (err) {
+        pdfError.textContent = `PDF se nije mogao izraditi: ${(err as Error).message}`;
+        pdfError.classList.remove('hidden');
+      } finally {
+        pdfBtn.disabled = false;
+        pdfLabel.textContent = 'Preuzmi PDF zahtjeva';
+      }
+    });
+
+    const form = steps.querySelector<HTMLFormElement>('[data-upload-form]')!;
+    const input = form.querySelector<HTMLInputElement>('#scan')!;
+    const error = form.querySelector<HTMLElement>('#scan-error')!;
+    const label = form.querySelector<HTMLElement>('[data-upload-label]')!;
+    const btn = form.querySelector<HTMLButtonElement>('[data-upload-btn]')!;
+    const done = steps.querySelector<HTMLElement>('[data-upload-done]')!;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const file = input.files?.[0];
+      const fail = (msg: string) => {
+        error.textContent = msg;
+        input.setAttribute('aria-invalid', 'true');
+        input.focus();
+      };
+      if (!current) return;
+      if (!file) return fail('Odaberite datoteku sa skenom ili fotografijom potpisanog zahtjeva.');
+      if (file.size > 10 * 1024 * 1024) return fail('Datoteka je veća od 10 MB.');
+      if (!/^(application\/pdf|image\/(jpeg|png|heic))$/.test(file.type)) return fail('Dopušteni su PDF, JPG i PNG.');
+      error.textContent = '';
+      input.removeAttribute('aria-invalid');
+      btn.disabled = true;
+      label.textContent = 'Učitavam…';
+      try {
+        await uploadAttachment(current.id, file);
+        form.classList.add('hidden');
+        done.classList.remove('hidden');
+        done.classList.add('flex');
+        done.focus();
+        markStep(4);
+      } catch (err) {
+        fail(`Učitavanje nije uspjelo: ${(err as Error).message}`);
+      } finally {
+        btn.disabled = false;
+        label.textContent = 'Učitaj sken';
+      }
+    });
+  }
+
+  document.addEventListener('astro:page-load', initWithdrawal);
+</script>

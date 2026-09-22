@@ -1,0 +1,166 @@
+---
+/**
+ * DocumentTable — pretraživa i filtrirana tablica dokumenata (naziv, kategorija, godina).
+ * Radi i bez JavaScripta (prikazuje sve). Filtar se može zadati kroz URL: ?kategorija=Upisi&q=statut
+ * Na uskim ekranima redovi tablice prikazuju se kao kartice.
+ */
+import type { CollectionEntry } from 'astro:content';
+import Icon from '../ui/Icon.astro';
+import { formatDateShort } from '../../lib/format';
+
+interface Props {
+  documents: CollectionEntry<'dokumenti'>[];
+  categories: readonly string[];
+}
+
+const { documents, categories } = Astro.props;
+const years = [...new Set(documents.map((d) => d.data.date.getFullYear()))].sort((a, b) => b - a);
+---
+
+<div data-doc-table>
+  <form class="card mb-6 grid gap-4 p-5 md:grid-cols-[2fr_1.3fr_1fr_auto] md:items-end" role="search" aria-label="Pretraživanje dokumenata">
+    <div>
+      <label for="doc-q" class="field-label">Pretraži po nazivu</label>
+      <div class="relative">
+        <Icon name="Search" size={20} class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" />
+        <input id="doc-q" name="q" type="search" class="field-input !pl-10" placeholder="npr. statut, proračun" autocomplete="off" />
+      </div>
+    </div>
+    <div>
+      <label for="doc-cat" class="field-label">Kategorija</label>
+      <select id="doc-cat" name="kategorija" class="field-input">
+        <option value="">Sve kategorije</option>
+        {categories.map((c) => <option value={c}>{c}</option>)}
+      </select>
+    </div>
+    <div>
+      <label for="doc-year" class="field-label">Godina</label>
+      <select id="doc-year" name="godina" class="field-input">
+        <option value="">Sve godine</option>
+        {years.map((y) => <option value={y}>{y}.</option>)}
+      </select>
+    </div>
+    <button type="reset" class="btn btn-outline">Poništi</button>
+  </form>
+
+  <p class="mb-3 font-semibold text-muted" aria-live="polite" data-doc-count>Dokumenata: {documents.length}</p>
+
+  <div class="card overflow-hidden">
+    <table class="doc-table w-full text-left">
+      <caption class="visually-hidden">Popis dokumenata</caption>
+      <thead class="bg-surface-2">
+        <tr>
+          <th scope="col" class="p-4 font-heading">Naziv dokumenta</th>
+          <th scope="col" class="p-4 font-heading">Kategorija</th>
+          <th scope="col" class="p-4 font-heading whitespace-nowrap">Datum objave</th>
+          <th scope="col" class="p-4 font-heading"><span class="visually-hidden">Preuzimanje</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          documents.map((d) => (
+            <tr
+              class="border-t border-line align-top"
+              data-title={d.data.title.toLowerCase()}
+              data-category={d.data.category}
+              data-year={d.data.date.getFullYear()}>
+              <td class="p-4" data-label="Naziv">
+                <span class="block font-semibold">{d.data.title}</span>
+                {d.data.description && <span class="mt-1 block text-sm text-muted">{d.data.description}</span>}
+              </td>
+              <td class="p-4" data-label="Kategorija">
+                <span class="inline-block rounded-full bg-brand-soft px-3 py-1 text-sm font-semibold text-brand-ink">{d.data.category}</span>
+              </td>
+              <td class="p-4 whitespace-nowrap" data-label="Datum">
+                <time datetime={d.data.date.toISOString().slice(0, 10)}>{formatDateShort(d.data.date)}</time>
+              </td>
+              <td class="p-4 md:text-right">
+                <a href={d.data.file} class="btn btn-outline !min-h-11 !px-3 !py-2 text-sm whitespace-nowrap" target="_blank" rel="noopener">
+                  <Icon name="Download" size={18} />
+                  PDF
+                  <span class="visually-hidden">: {d.data.title} (otvara se u novom prozoru)</span>
+                </a>
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p class="hidden p-8 text-center text-muted" data-doc-empty>
+      Nema dokumenata koji odgovaraju pretrazi. Pokušajte s drugim pojmom ili odaberite „Sve kategorije”.
+    </p>
+  </div>
+</div>
+
+<style>
+  @media (max-width: 47.99rem) {
+    .doc-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+    .doc-table tr,
+    .doc-table td {
+      display: block;
+    }
+    .doc-table tr {
+      padding-block: 0.5rem;
+    }
+    .doc-table td {
+      padding-block: 0.3rem;
+    }
+    .doc-table tr[hidden] {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  function initDocTable() {
+    const root = document.querySelector('[data-doc-table]');
+    if (!root) return;
+    const form = root.querySelector('form')!;
+    const q = form.querySelector<HTMLInputElement>('#doc-q')!;
+    const cat = form.querySelector<HTMLSelectElement>('#doc-cat')!;
+    const year = form.querySelector<HTMLSelectElement>('#doc-year')!;
+    const rows = root.querySelectorAll<HTMLTableRowElement>('tbody tr');
+    const count = root.querySelector('[data-doc-count]')!;
+    const empty = root.querySelector<HTMLElement>('[data-doc-empty]')!;
+
+    // Početno stanje iz URL-a (npr. poveznica iz podnožja)
+    const params = new URLSearchParams(location.search);
+    q.value = params.get('q') ?? '';
+    cat.value = params.get('kategorija') ?? '';
+    year.value = params.get('godina') ?? '';
+
+    const apply = () => {
+      const term = q.value.trim().toLowerCase();
+      let shown = 0;
+      rows.forEach((row) => {
+        const match =
+          (!term || row.dataset.title!.includes(term)) &&
+          (!cat.value || row.dataset.category === cat.value) &&
+          (!year.value || row.dataset.year === year.value);
+        row.hidden = !match;
+        if (match) shown++;
+      });
+      count.textContent = `Dokumenata: ${shown}`;
+      empty.classList.toggle('hidden', shown > 0);
+
+      const url = new URL(location.href);
+      for (const [key, el] of [['q', q], ['kategorija', cat], ['godina', year]] as const) {
+        if (el.value) url.searchParams.set(key, el.value.trim());
+        else url.searchParams.delete(key);
+      }
+      history.replaceState(history.state, '', url);
+    };
+
+    form.addEventListener('input', apply);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    form.addEventListener('reset', () => setTimeout(apply));
+    apply();
+  }
+  document.addEventListener('astro:page-load', initDocTable);
+</script>
