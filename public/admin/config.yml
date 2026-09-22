@@ -20,7 +20,7 @@ backend:
 
 site_url: https://radivfil.github.io/dv-dugo-selo # TODO: prava domena
 display_url: https://radivfil.github.io/dv-dugo-selo
-logo_url: /favicon.svg
+logo_url: ../favicon.svg # relativno, radi i na podadresi (GitHub Pages)
 
 media_folder: public/uploads
 public_folder: /uploads
