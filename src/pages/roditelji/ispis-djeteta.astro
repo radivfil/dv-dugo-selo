@@ -39,12 +39,32 @@ const steps = site.withdrawal.steps;
         }
       </ol>
 
+      <!-- Zahtjev poslan ranije: nastavak (PDF i učitavanje skena) bez ponovnog ispunjavanja -->
+      <div class="mx-auto mb-8 hidden max-w-3xl rounded-[var(--radius-card)] border-2 border-gold bg-gold-soft p-5 sm:p-6" data-pending hidden>
+        <h2 class="flex items-center gap-2 text-xl">
+          <Icon name="Hourglass" size={22} class="text-gold-ink" />
+          Imate zahtjev u tijeku
+        </h2>
+        <p class="mt-2 text-muted">
+          Zahtjev za <strong class="text-ink" data-pending-child></strong> zaprimljen je
+          <span data-pending-date></span>, broj <span class="font-mono font-semibold text-ink" data-pending-id></span>.
+          Preostaje preuzeti zahtjev, potpisati ga i učitati sken.
+        </p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <button type="button" class="btn btn-brand" data-pending-continue>
+            Nastavi s ovim zahtjevom
+            <Icon name="ArrowRight" size={20} class="btn-arrow" />
+          </button>
+          <button type="button" class="btn btn-outline" data-pending-discard>Odustani i ispuni novi</button>
+        </div>
+      </div>
+
       <div class="mx-auto max-w-3xl">
         <FormShell
           type="ispis"
           submitLabel="Pošalji zahtjev"
           successTitle="Zahtjev je zaprimljen"
-          successText="Sad preuzmite zahtjev, potpišite ga i učitajte sken. Ispis je konačan kad tajništvo zaprimi potpisani zahtjev.">
+          successText="Sad preuzmite zahtjev, potpišite ga i učitajte sken. Ako zatvorite stranicu, možete se vratiti kasnije i dovršiti učitavanje. Ispis je konačan kad tajništvo zaprimi potpisani zahtjev.">
           <FormField name="child_name" label="Ime i prezime djeteta" map="child_name" required autocomplete="off" />
           <FormField name="birth_date" label="Datum rođenja djeteta" type="date" required data-max-today />
           <FormField name="location" label="Objekt" type="select" options={locations} required />
@@ -81,6 +101,10 @@ const steps = site.withdrawal.steps;
                 <span data-pdf-label>Preuzmi PDF zahtjeva</span>
               </button>
               <p class="mt-2 hidden text-sm font-semibold text-danger" role="alert" data-pdf-error></p>
+              <p class="mt-2 hidden items-center gap-2 text-sm font-semibold text-success" data-pdf-done aria-live="polite">
+                <Icon name="CircleCheck" size={18} />
+                PDF je preuzet. Potražite ga među preuzimanjima u pregledniku.
+              </p>
             </div>
 
             <div class="rounded-[var(--radius-card)] border border-line bg-surface-2 p-5">
@@ -126,6 +150,30 @@ const steps = site.withdrawal.steps;
     if (!shell || !steps || shell.dataset.withdrawalReady) return;
     shell.dataset.withdrawalReady = 'true';
 
+    /**
+     * Zahtjev u tijeku: nakon slanja se pamti u pregledniku, pa se roditelj može vratiti
+     * kasnije (i s druge stranice) i dovršiti korake 2 i 3 bez ponovnog ispunjavanja.
+     * Zapis se briše nakon učitanog skena ili ako roditelj odustane.
+     */
+    const KLJUC = 'dv-ispis-u-tijeku';
+    type Zahtjev = { id: string; data: NewSubmission; createdAt: string };
+    const procitaj = (): Zahtjev | null => {
+      try {
+        const z = JSON.parse(localStorage.getItem(KLJUC) ?? 'null');
+        return z?.id && z?.data ? z : null;
+      } catch {
+        return null;
+      }
+    };
+    const zapisi = (z: Zahtjev | null) => {
+      try {
+        if (z) localStorage.setItem(KLJUC, JSON.stringify(z));
+        else localStorage.removeItem(KLJUC);
+      } catch {
+        /* privatni način: nastavak vrijedi samo u ovoj kartici */
+      }
+    };
+
     let current: { id: string; data: NewSubmission } | null = null;
     const markStep = (n: number) =>
       document.querySelectorAll<HTMLElement>('[data-step]').forEach((el) => {
@@ -136,6 +184,7 @@ const steps = site.withdrawal.steps;
 
     shell.addEventListener('submission:created', (e) => {
       current = (e as CustomEvent).detail;
+      zapisi({ ...current!, createdAt: new Date().toISOString() });
       markStep(2);
     });
     shell.addEventListener('submission:reset', () => {
@@ -143,6 +192,41 @@ const steps = site.withdrawal.steps;
       markStep(1);
       steps.querySelector<HTMLFormElement>('[data-upload-form]')!.classList.remove('hidden');
       steps.querySelector('[data-upload-done]')!.classList.add('hidden');
+    });
+
+    // Panel za nastavak ranije poslanog zahtjeva
+    const panel = document.querySelector<HTMLElement>('[data-pending]')!;
+    const zapamcen = procitaj();
+    if (zapamcen) {
+      panel.hidden = false;
+      panel.classList.remove('hidden');
+      panel.querySelector('[data-pending-child]')!.textContent = zapamcen.data.child_name ?? 'dijete';
+      panel.querySelector('[data-pending-id]')!.textContent = zapamcen.id.slice(0, 8).toUpperCase();
+      panel.querySelector('[data-pending-date]')!.textContent = new Date(zapamcen.createdAt).toLocaleDateString('hr-HR');
+    }
+
+    panel.querySelector('[data-pending-continue]')!.addEventListener('click', () => {
+      const z = procitaj();
+      if (!z) return;
+      current = { id: z.id, data: z.data };
+      // preskoči obrazac i otvori korake 2 i 3
+      shell.querySelector('form[data-form]')!.classList.add('hidden');
+      const success = shell.querySelector<HTMLElement>('[data-success]')!;
+      success.classList.remove('hidden');
+      success.querySelector('[data-success-id]')!.textContent = z.id.slice(0, 8).toUpperCase();
+      panel.hidden = true;
+      markStep(2);
+      success.scrollIntoView({ block: 'start' });
+      success.focus();
+    });
+
+    panel.querySelector('[data-pending-discard]')!.addEventListener('click', () => {
+      zapisi(null);
+      current = null;
+      panel.hidden = true;
+      shell.querySelector<HTMLElement>('form[data-form]')!.classList.remove('hidden');
+      shell.querySelector('[data-success]')!.classList.add('hidden');
+      markStep(1);
     });
 
     const pdfBtn = steps.querySelector<HTMLButtonElement>('[data-download-pdf]')!;
@@ -156,6 +240,9 @@ const steps = site.withdrawal.steps;
       try {
         await downloadWithdrawalPdf(current.id, current.data);
         markStep(3);
+        const pdfDone = steps.querySelector<HTMLElement>('[data-pdf-done]')!;
+        pdfDone.classList.remove('hidden');
+        pdfDone.classList.add('flex');
       } catch (err) {
         pdfError.textContent = `PDF se nije mogao izraditi: ${(err as Error).message}`;
         pdfError.classList.remove('hidden');
@@ -190,6 +277,7 @@ const steps = site.withdrawal.steps;
       label.textContent = 'Učitavam…';
       try {
         await uploadAttachment(current.id, file);
+        zapisi(null); // zahtjev je dovršen, nastavak više nije potreban
         form.classList.add('hidden');
         done.classList.remove('hidden');
         done.classList.add('flex');
