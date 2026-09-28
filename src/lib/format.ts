@@ -12,3 +12,14 @@ export const formatDateShort = (d: Date | string) => shortFmt.format(new Date(d)
  * Koristi ga src/middleware.ts za sav HTML i admin za tekst koji iscrtava u pregledniku.
  */
 export const keepHyphenatedWords = (text: string) => text.replace(/(\p{L})-(?=\p{L})/gu, '$1-\u2060');
+
+/**
+ * Datum u obliku dan/mjesec/godina (15/10/2026). Koristi se svugdje gdje datum dolazi iz obrasca:
+ * prikaz odabranog datuma, PDF zahtjeva i pregled prijava u adminu.
+ */
+export const formatDateSlash = (d: Date | string) => {
+  const x = new Date(d);
+  const dd = String(x.getDate()).padStart(2, '0');
+  const mm = String(x.getMonth() + 1).padStart(2, '0');
+  return `${dd}/${mm}/${x.getFullYear()}`;
+};

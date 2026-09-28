@@ -57,7 +57,10 @@ const DEFAULT_PATTERNS: Record<string, string> = {
 };
 
 const id = `f-${name}`;
-const describedBy = [hint && `${id}-hint`, `${id}-error`].filter(Boolean).join(' ');
+// Datum se upisuje i prikazuje kao dan/mjesec/godina; prikaz odabranog datuma dodaje src/scripts/forms.ts
+const FORMAT_DATUMA = 'Format: dan/mjesec/godina, npr. 15/10/2026.';
+const fieldHint = type === 'date' ? [hint, FORMAT_DATUMA].filter(Boolean).join(' ') : hint;
+const describedBy = [fieldHint && `${id}-hint`, type === 'date' && `${id}-preview`, `${id}-error`].filter(Boolean).join(' ');
 const common = { ...dataAttrs, id, name, required, 'aria-describedby': describedBy, 'data-map': map, 'data-after': after };
 ---
 
@@ -103,7 +106,8 @@ const common = { ...dataAttrs, id, name, required, 'aria-describedby': described
           maxlength={maxlength ?? (type === 'file' || type === 'date' ? undefined : 120)}
         />
       )}
-      {hint && <span id={`${id}-hint`} class="field-hint">{hint}</span>}
+      {fieldHint && <span id={`${id}-hint`} class="field-hint">{fieldHint}</span>}
+      {type === 'date' && <span id={`${id}-preview`} class="field-hint font-semibold text-ink" data-date-preview aria-live="polite" />}
       <span id={`${id}-error`} class="field-error" />
     </div>
   )

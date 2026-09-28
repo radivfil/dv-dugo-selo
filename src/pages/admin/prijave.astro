@@ -264,7 +264,7 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
     type Submission,
     type SubmissionStatus,
   } from '../../lib/submissions';
-  import { formatDateShort, keepHyphenatedWords } from '../../lib/format';
+  import { formatDateSlash, keepHyphenatedWords } from '../../lib/format';
 
   const DETAIL_LABELS: Record<string, string> = {
     location: 'Objekt',
@@ -329,7 +329,7 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
     const typeTd = cell('prijava');
     typeTd.append(
       el('span', `type-pill type-${s.type}`, TYPE_LABELS[s.type]),
-      el('span', 'tabular mt-1 block text-sm whitespace-nowrap text-muted', `${formatDateShort(created)}, ${created.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' })}`),
+      el('span', 'tabular mt-1 block text-sm whitespace-nowrap text-muted', `${formatDateSlash(created)}, ${created.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' })}`),
     );
 
     // Dijete i roditelj
@@ -341,8 +341,8 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
     const dateTd = cell('datum');
     if (s.date) {
       dateTd.append(el('span', 'cell-label', DATE_LABELS[s.type] ?? 'Datum'));
-      dateTd.append(el('span', 'tabular block whitespace-nowrap', formatDateShort(s.date)));
-      if (s.details.date_to) dateTd.append(el('span', 'block whitespace-nowrap', `do ${formatDateShort(s.details.date_to)}`));
+      dateTd.append(el('span', 'tabular block whitespace-nowrap', formatDateSlash(s.date)));
+      if (s.details.date_to) dateTd.append(el('span', 'block whitespace-nowrap', `do ${formatDateSlash(s.details.date_to)}`));
     } else {
       dateTd.append(el('span', 'text-muted', '—'));
       dateTd.dataset.noDate = 'true';
@@ -360,7 +360,7 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
       const dl = el('dl', 'mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-sm');
       for (const [k, v] of entries) {
         const isDate = /^\d{4}-\d{2}-\d{2}$/.test(v);
-        dl.append(el('dt', 'font-bold', DETAIL_LABELS[k] ?? k), el('dd', 'text-muted whitespace-pre-line', isDate ? formatDateShort(v) : v));
+        dl.append(el('dt', 'font-bold', DETAIL_LABELS[k] ?? k), el('dd', 'text-muted whitespace-pre-line', isDate ? formatDateSlash(v) : v));
       }
       details.append(dl);
       detailsTd.append(details);

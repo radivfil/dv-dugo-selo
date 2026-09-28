@@ -4,6 +4,7 @@
  * jsPDF se učitava tek kad korisnik zatraži PDF.
  */
 import { site } from '../config/site';
+import { formatDateSlash } from './format';
 import type { NewSubmission } from './submissions';
 
 async function fontBase64(url: string) {
@@ -17,7 +18,7 @@ async function fontBase64(url: string) {
 // Fontovi su u public/fonts; BASE_URL pokriva objavu na podadresi (npr. GitHub Pages).
 const FONT_DIR = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/fonts`;
 
-const hrDate = (iso?: string | null) => (iso ? new Date(iso).toLocaleDateString('hr-HR') : '—');
+const hrDate = (iso?: string | null) => (iso ? formatDateSlash(iso) : '—');
 
 export async function downloadWithdrawalPdf(id: string, data: NewSubmission) {
   const [{ jsPDF }, regular, semibold] = await Promise.all([
@@ -51,7 +52,7 @@ export async function downloadWithdrawalPdf(id: string, data: NewSubmission) {
   doc.text('ZAHTJEV ZA ISPIS DJETETA IZ VRTIĆA', left, (y += 18));
   doc.setFont('Poppins', 'normal');
   doc.setFontSize(9);
-  doc.text(`Broj prijave: ${id.slice(0, 8).toUpperCase()}   ·   Zaprimljeno elektronički: ${new Date().toLocaleDateString('hr-HR')}`, left, (y += 6));
+  doc.text(`Broj prijave: ${id.slice(0, 8).toUpperCase()}   ·   Zaprimljeno elektronički: ${formatDateSlash(new Date())}`, left, (y += 6));
 
   const d = data.details;
   const rows: [string, string][] = [

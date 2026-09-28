@@ -101,6 +101,18 @@ function toSubmission(form: HTMLFormElement, type: SubmissionType): NewSubmissio
   return record;
 }
 
+/**
+ * Ispisuje odabrani datum kao dan/mjesec/godina. Preglednik sam odlučuje kako prikazuje
+ * polje type="date" (ovisno o postavkama sustava), pa ovo jamči da roditelj uvijek vidi
+ * datum u očekivanom obliku.
+ */
+function showDatePreview(input: HTMLInputElement) {
+  const preview = document.getElementById(`${input.id}-preview`);
+  if (!preview) return;
+  const [g, m, d] = input.value.split('-');
+  preview.textContent = input.value ? `Odabrano: ${d}/${m}/${g}` : '';
+}
+
 function initForms() {
   document.querySelectorAll<HTMLFormElement>('form[data-form]').forEach((form) => {
     if (form.dataset.ready) return;
@@ -109,6 +121,10 @@ function initForms() {
     const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
     form.querySelectorAll<HTMLInputElement>('[data-min-today]').forEach((i) => (i.min = today));
     form.querySelectorAll<HTMLInputElement>('[data-max-today]').forEach((i) => (i.max = today));
+    form.querySelectorAll<HTMLInputElement>('input[type="date"]').forEach((i) => {
+      showDatePreview(i);
+      i.addEventListener('change', () => showDatePreview(i));
+    });
     const shell = form.closest<HTMLElement>('[data-form-shell]')!;
     const success = shell.querySelector<HTMLElement>('[data-success]')!;
     const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
