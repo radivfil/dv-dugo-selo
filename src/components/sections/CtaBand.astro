@@ -1,6 +1,6 @@
 ---
 /**
- * CtaBand — široka traka s pozivom na radnju (npr. upisi). Ton 'brand' (plava) ili 'accent' (svijetlo zlatna).
+ * CtaBand — široka traka s pozivom na radnju (npr. upisi). Ton 'brand' (plava ploha) ili 'accent' (svijetlo zlatna traka).
  */
 import Icon from '../ui/Icon.astro';
 
@@ -21,22 +21,22 @@ const headingId = `cta-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
     data-reveal
     class:list={[
       'grid items-center gap-6 rounded-[var(--radius-card)] p-7 md:grid-cols-[auto_1fr_auto] md:p-10',
-      tone === 'brand' ? 'on-brand bg-brand text-on-brand' : 'border border-accent bg-accent-soft',
+      tone === 'brand' ? 'on-brand bg-brand text-on-brand' : 'border border-gold bg-gold-soft',
     ]}>
     {
       icon && (
-        <span class="hidden h-16 w-16 place-items-center rounded-full bg-accent text-on-accent md:grid">
+        <span class="hidden h-16 w-16 place-items-center rounded-full bg-gold text-on-gold md:grid">
           <Icon name={icon} size={30} />
         </span>
       )
     }
     <div>
       <h2 id={headingId} class:list={['text-2xl md:text-3xl', tone === 'brand' && 'text-on-brand']}>{title}</h2>
-      <p class:list={['mt-2 max-w-[60ch]', tone === 'brand' ? 'text-on-brand/90' : 'text-muted']}>{text}</p>
+      <p class:list={['mt-2 max-w-[60ch]', tone === 'brand' ? 'text-on-brand' : 'text-muted']}>{text}</p>
     </div>
     <a
       href={cta.href}
-      class:list={['btn justify-self-start md:justify-self-end', tone === 'brand' ? 'btn-accent' : 'btn-brand']}
+      class:list={['btn justify-self-start md:justify-self-end', tone === 'brand' ? 'btn-cta' : 'btn-brand']}
       {...cta.external ? { target: '_blank', rel: 'noopener' } : {}}>
       {cta.label}
       <Icon name={cta.external ? 'ExternalLink' : 'ArrowRight'} size={20} class="btn-arrow" />

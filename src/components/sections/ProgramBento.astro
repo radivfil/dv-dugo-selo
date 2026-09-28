@@ -21,7 +21,7 @@ const toneClass = (p: Program) =>
   p.tone === 'brand'
     ? 'on-brand bg-brand text-on-brand border-brand'
     : p.tone === 'accent'
-      ? 'bg-accent-soft border-accent'
+      ? 'bg-gold-soft border-gold'
       : 'bg-surface border-line';
 ---
 
@@ -38,33 +38,33 @@ const toneClass = (p: Program) =>
           p.size === 'wide' && 'sm:col-span-2',
           p.size === 'tall' && 'lg:row-span-2',
         ]}>
-        {p.size === 'tall' && p.imageAlt && (
-          <Photo alt={p.imageAlt} ratio="4 / 3" class="!rounded-none" />
+        {p.image && (
+          <Photo src={p.image} alt={p.imageAlt ?? p.title} ratio={p.size === 'wide' ? '16 / 7' : '4 / 3'} class="!rounded-none" />
         )}
         <div class="flex flex-1 flex-col gap-3 p-6">
           <div class="flex items-center justify-between gap-3">
             <span
               class:list={[
                 'grid h-12 w-12 shrink-0 place-items-center rounded-[var(--radius-control)]',
-                p.tone === 'brand' ? 'bg-accent text-on-accent' : p.tone === 'accent' ? 'bg-accent text-on-accent' : 'bg-brand-soft text-brand-ink',
+                p.tone === 'brand' || p.tone === 'accent' ? 'bg-gold text-on-gold' : 'bg-brand-soft text-brand-ink',
               ]}>
               <Icon name={p.icon} size={24} />
             </span>
             <span
               class:list={[
                 'rounded-full px-3 py-1 text-sm font-bold whitespace-nowrap',
-                p.tone === 'brand' ? 'bg-on-brand/15 text-on-brand' : 'bg-surface-2 text-ink',
+                p.tone === 'brand' ? 'bg-surface text-brand-ink' : 'bg-surface-2 text-ink',
               ]}>
               {p.age}
             </span>
           </div>
           <Heading class:list={['text-xl', p.tone === 'brand' && 'text-on-brand']}>{p.title}</Heading>
-          <p class:list={[p.tone === 'brand' ? 'text-on-brand/90' : 'text-muted']}>{p.summary}</p>
+          <p class:list={[p.tone === 'brand' ? 'text-on-brand' : 'text-muted']}>{p.summary}</p>
           {!compact && p.details.length > 0 && (
             <ul class="mt-auto grid gap-1.5 pt-2 text-[0.95rem]">
               {p.details.map((d) => (
                 <li class="flex gap-2">
-                  <Icon name="Check" size={18} class:list={['mt-1 shrink-0', p.tone === 'brand' ? 'text-accent' : 'text-brand-ink']} />
+                  <Icon name="Check" size={18} class:list={['mt-1 shrink-0', p.tone === 'brand' ? 'text-gold' : 'text-brand-ink']} />
                   <span>{d}</span>
                 </li>
               ))}

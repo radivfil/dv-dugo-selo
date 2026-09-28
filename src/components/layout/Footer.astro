@@ -14,8 +14,8 @@ const year = new Date().getFullYear();
   <div class="container-site grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
     <div class="space-y-4">
       <Logo inverse />
-      <p class="max-w-xs text-on-brand/90">{site.description}</p>
-      <p class="inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1.5 text-sm font-bold text-on-accent">
+      <p class="max-w-xs text-on-brand">{site.description}</p>
+      <p class="inline-flex items-center gap-2 rounded-full bg-gold px-3 py-1.5 text-sm font-bold text-on-gold">
         <Icon name={site.badge.icon} size={18} />
         {site.badge.title}
       </p>
@@ -44,7 +44,7 @@ const year = new Date().getFullYear();
         {
           site.hours.map((h) => (
             <div>
-              <dt class="text-sm font-semibold text-on-brand/80">{h.label}</dt>
+              <dt class="text-sm font-semibold text-on-brand">{h.label}</dt>
               <dd>{h.value}</dd>
             </div>
           ))
@@ -68,13 +68,12 @@ const year = new Date().getFullYear();
     </nav>
   </div>
 
-  <div class="border-t border-on-brand/20">
-    <div class="container-site flex flex-col gap-2 py-5 text-sm text-on-brand/90 md:flex-row md:items-center md:justify-between">
+  <div class="border-t border-on-brand/40">
+    <div class="container-site flex flex-col gap-2 py-5 text-sm text-on-brand md:flex-row md:items-center md:justify-between">
       <p>
         {`© ${year} ${site.legalName}.`} Osnivač: <a href={site.founderUrl} class="text-on-brand" rel="noopener">{site.founder}</a>
       </p>
       <ul class="flex flex-wrap gap-x-5 gap-y-1">
-        <li><a href="/roditelji/ispis-djeteta" class="inline-flex min-h-11 items-center text-on-brand">Ispis djeteta</a></li>
         <li><a href="/pristupacnost" class="inline-flex min-h-11 items-center text-on-brand">Izjava o pristupačnosti</a></li>
         <li><a href="/dokumenti?kategorija=Pravo%20na%20pristup%20informacijama" class="inline-flex min-h-11 items-center text-on-brand">Pristup informacijama</a></li>
       </ul>

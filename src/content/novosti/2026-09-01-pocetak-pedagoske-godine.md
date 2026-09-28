@@ -2,6 +2,8 @@
 title: Početak pedagoške godine 2026./2027.
 date: 2026-09-01
 summary: 'Nova pedagoška godina počela je u svim objektima. Roditeljski sastanci skupina održavaju se od 22. rujna do 2. listopada, a raspored je na oglasnim pločama.'
+image: /images/placeholder/ucionica-3.jpg
+imageAlt: Dijete slaže zvjezdice na tepihu u sobi vrtića
 ---
 
 Dobro došli u novu pedagošku godinu! U skupine je ove jeseni krenulo više od 90 novoupisane djece, a prilagodba u jaslicama traje prema dogovoru s odgojiteljima.

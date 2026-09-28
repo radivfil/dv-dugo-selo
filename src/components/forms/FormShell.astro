@@ -26,8 +26,8 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
   <form data-form={type} novalidate class="grid gap-5">
     {
       demo && (
-        <p class="flex gap-3 rounded-[var(--radius-control)] border border-accent bg-accent-soft p-3 text-sm">
-          <Icon name="Info" size={20} class="mt-0.5 shrink-0 text-accent-ink" />
+        <p class="flex gap-3 rounded-[var(--radius-control)] border border-gold bg-gold-soft p-3 text-sm">
+          <Icon name="Info" size={20} class="mt-0.5 shrink-0 text-gold-ink" />
           <span>
             <strong>Demo način:</strong> prijava se sprema samo u ovaj preglednik i vidi se na stranici <a href="/admin/prijave">/admin/prijave</a>.
           </span>
@@ -57,7 +57,7 @@ const demo = !import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUP
     <p class="text-danger font-semibold hidden" role="alert" data-submit-error></p>
 
     <div>
-      <button type="submit" class="btn btn-accent w-full sm:w-auto" data-submit>
+      <button type="submit" class="btn btn-cta w-full sm:w-auto" data-submit>
         <span data-submit-label>{submitLabel}</span>
         <Icon name="Send" size={20} class="btn-arrow" />
       </button>

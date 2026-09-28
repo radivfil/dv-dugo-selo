@@ -1,0 +1,29 @@
+---
+/**
+ * Wave — valoviti prijelaz između dvije sekcije, umjesto ravne granice.
+ * `from` je boja sekcije iznad, `to` boja sekcije ispod (imena tokena iz site.colors).
+ * Čisto ukrasno: aria-hidden, bez teksta, bez utjecaja na raspored sadržaja.
+ *
+ * Primjer: <Wave from="bg" to="washMint" />
+ */
+interface Props {
+  from?: string;
+  to?: string;
+  /** 'soft' je niski val, 'deep' izraženiji (za prijelaz na plavu plohu) */
+  shape?: 'soft' | 'deep';
+  class?: string;
+}
+
+const { from = 'bg', to = 'surface', shape = 'soft', class: className } = Astro.props;
+
+const paths = {
+  soft: 'M0,40 C180,90 420,0 720,26 C1020,52 1260,96 1440,60 L1440,120 L0,120 Z',
+  deep: 'M0,18 C240,96 480,4 780,40 C1080,76 1290,110 1440,30 L1440,120 L0,120 Z',
+};
+---
+
+<div class:list={['relative -mb-px w-full overflow-hidden', className]} style={`background:var(--c-${from})`} aria-hidden="true">
+  <svg viewBox="0 0 1440 120" preserveAspectRatio="none" class="block h-[clamp(2.5rem,5vw,5rem)] w-full">
+    <path d={paths[shape]} fill={`var(--c-${to})`}></path>
+  </svg>
+</div>

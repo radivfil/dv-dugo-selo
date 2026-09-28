@@ -9,3 +9,6 @@ dist/
 
 # Interni radni dokument (specifikacija/prompt), ne objavljuje se u javnom repozitoriju
 FINALNI-prompt-*.md
+
+# QA snimke (lokalni artefakti, ne idu u repozitorij)
+qa-screenshots/

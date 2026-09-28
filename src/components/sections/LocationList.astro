@@ -41,7 +41,7 @@ const mapUrl = (q: string) => `https://www.openstreetmap.org/search?query=${enco
     <ul class="grid gap-6 lg:grid-cols-3">
       {locations.map((loc, i) => (
         <li id={loc.id} class="card flex flex-col overflow-hidden" data-reveal style={`--reveal-i:${i}`}>
-          <Photo alt={`Zgrada i dvorište: ${loc.name}`} ratio="16 / 10" class="!rounded-none" />
+          <Photo src={loc.image} alt={`Soba i dvorište: ${loc.name}`} ratio="16 / 10" class="!rounded-none" />
           <div class="flex flex-1 flex-col gap-3 p-6">
             <p class="eyebrow">Lokacija {i + 1}</p>
             <h3>{loc.name}</h3>

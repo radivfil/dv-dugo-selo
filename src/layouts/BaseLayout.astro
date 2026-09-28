@@ -29,7 +29,13 @@ const toVars = (palette: Record<string, string>) =>
   Object.entries(palette)
     .map(([key, value]) => `--c-${key}:${value};`)
     .join('');
-const themeCss = `:root{${toVars(site.colors.light)}}@media (prefers-color-scheme: dark){:root{${toVars(site.colors.dark)}}}`;
+// Tri slučaja: zadano svijetlo; sistemski tamno (osim ako je korisnik ručno odabrao svijetlo);
+// ručni odabir tamnog (data-theme="dark" na <html>, pamti se u localStorage).
+const themeCss = [
+  `:root{${toVars(site.colors.light)}color-scheme:light;}`,
+  `@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){${toVars(site.colors.dark)}color-scheme:dark;}}`,
+  `:root[data-theme="dark"]{${toVars(site.colors.dark)}color-scheme:dark;}`,
+].join('');
 ---
 
 <!doctype html>
@@ -41,7 +47,7 @@ const themeCss = `:root{${toVars(site.colors.light)}}@media (prefers-color-schem
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {(noindex || !site.indexable) && <meta name="robots" content="noindex, nofollow" />}
-    <meta name="theme-color" content={site.colors.light.brand} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={site.colors.light.bg} media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content={site.colors.dark.bg} media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
@@ -53,7 +59,25 @@ const themeCss = `:root{${toVars(site.colors.light)}}@media (prefers-color-schem
     <Font cssVariable="--astro-font-body" preload />
     <style is:inline set:html={themeCss}></style>
     <script is:inline>
-      document.documentElement.classList.add('js');
+      // Prije prvog iscrtavanja: klasa .js i zapamćena tema (bez bljeska krive teme).
+      (() => {
+        const root = document.documentElement;
+        root.classList.add('js');
+        const apply = () => {
+          try {
+            const saved = localStorage.getItem('tema');
+            if (saved === 'dark' || saved === 'light') root.dataset.theme = saved;
+            else delete root.dataset.theme;
+          } catch {
+            /* privatni način: ostaje sistemska postavka */
+          }
+        };
+        apply();
+        document.addEventListener('astro:after-swap', () => {
+          root.classList.add('js');
+          apply();
+        });
+      })();
     </script>
     <ClientRouter />
     <slot name="head" />

@@ -10,6 +10,7 @@ import ProgramBento from '../components/sections/ProgramBento.astro';
 import NewsList from '../components/sections/NewsList.astro';
 import CtaBand from '../components/sections/CtaBand.astro';
 import Icon from '../components/ui/Icon.astro';
+import Wave from '../components/ui/Wave.astro';
 import { site } from '../config/site';
 
 const news = (await getCollection('novosti')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 3);
@@ -29,11 +30,13 @@ const tip = site.parents.tips[0];
 
   <QuickLinks links={site.quickLinks} />
 
+  <Wave from="washBlue" to="bg" />
+
   <!-- O vrtiću i lokacije -->
   <section class="section" aria-labelledby="o-nama">
     <div class="container-site grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
       <div>
-        <SectionHeading id="o-nama" eyebrow="O vrtiću" title="Jedan vrtić, tri kuće u istom gradu" lead={site.about.intro} />
+        <SectionHeading id="o-nama" title="Jedan vrtić, tri kuće u istom gradu" lead={site.about.intro} />
         <a href="/o-vrticu" class="btn btn-outline" data-reveal>
           Upoznajte vrtić
           <Icon name="ArrowRight" size={20} class="btn-arrow" />
@@ -43,13 +46,15 @@ const tip = site.parents.tips[0];
     </div>
   </section>
 
+  <Wave from="bg" to="washMint" />
+
   <!-- Programi -->
-  <section class="section bg-surface-2" aria-labelledby="programi">
+  <section class="section bg-wash-mint" aria-labelledby="programi">
     <div class="container-site">
       <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <SectionHeading
           id="programi"
-          eyebrow="Programi i skupine"
+         
           title="Program za svaku dob, od prvog koraka do škole"
           class="md:!mb-10"
         />
@@ -62,18 +67,20 @@ const tip = site.parents.tips[0];
     </div>
   </section>
 
+  <Wave from="washMint" to="bg" />
+
   <!-- Kutak za roditelje -->
   <section class="section" aria-labelledby="roditelji">
     <div class="container-site grid gap-6 lg:grid-cols-[1.2fr_1fr]">
       <div class="on-brand flex flex-col gap-5 rounded-[var(--radius-card)] bg-brand p-7 text-on-brand md:p-10" data-reveal>
-        <p class="eyebrow !text-accent">Kutak za roditelje</p>
+        <p class="eyebrow !text-on-brand">Kutak za roditelje</p>
         <h2 id="roditelji" class="text-on-brand">Dijete danas ostaje kod kuće?</h2>
-        <p class="max-w-[52ch] text-on-brand/90">
+        <p class="max-w-[52ch] text-on-brand">
           Prijavite izostanak do {site.parents.absenceDeadline} sati i obrok se ne obračunava. Prijava stiže izravno odgojiteljima skupine i
           računovodstvu, bez telefonskih poziva.
         </p>
         <div class="mt-auto flex flex-col gap-3 min-[26rem]:flex-row min-[26rem]:flex-wrap">
-          <a href="/roditelji/prijava-izostanka" class="btn btn-accent">
+          <a href="/roditelji/prijava-izostanka" class="btn btn-cta">
             Prijavi izostanak
             <Icon name="ArrowRight" size={20} class="btn-arrow" />
           </a>
@@ -110,23 +117,25 @@ const tip = site.parents.tips[0];
             </div>
           )
         }
-        <figure class="rounded-[var(--radius-card)] border border-accent bg-accent-soft p-6" data-reveal style="--reveal-i:2">
-          <p class="eyebrow !text-accent-ink">Savjet stručnog tima</p>
+        <figure class="rounded-[var(--radius-card)] border border-gold bg-gold-soft p-6" data-reveal style="--reveal-i:2">
+          <p class="eyebrow !text-gold-ink">Savjet stručnog tima</p>
           <blockquote class="mt-2">
             <p class="font-heading text-lg font-semibold">{tip.title}</p>
             <p class="mt-1 text-muted">{tip.text}</p>
           </blockquote>
-          <figcaption class="mt-3 text-sm font-semibold text-accent-ink">{tip.author}</figcaption>
+          <figcaption class="mt-3 text-sm font-semibold text-gold-ink">{tip.author}</figcaption>
         </figure>
       </div>
     </div>
   </section>
 
+  <Wave from="bg" to="washCream" />
+
   <!-- Novosti -->
-  <section class="section bg-surface-2" aria-labelledby="novosti">
+  <section class="section bg-wash-cream" aria-labelledby="novosti">
     <div class="container-site">
       <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-        <SectionHeading id="novosti" eyebrow="Novosti" title="Što se događa u vrtiću" class="md:!mb-10" />
+        <SectionHeading id="novosti" title="Što se događa u vrtiću" class="md:!mb-10" />
         <a href="/novosti" class="btn btn-outline mb-8 self-start md:mb-10 md:self-auto">
           Sve novosti
           <Icon name="ArrowRight" size={20} class="btn-arrow" />
@@ -135,6 +144,8 @@ const tip = site.parents.tips[0];
       <NewsList items={news} />
     </div>
   </section>
+
+  <Wave from="washCream" to="bg" />
 
   <div class="section">
     <CtaBand

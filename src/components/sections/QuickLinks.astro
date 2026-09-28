@@ -28,7 +28,7 @@ const { links, title = 'Brze poveznice' } = Astro.props;
             <span
               class:list={[
                 'grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-control)]',
-                i === 0 ? 'bg-accent text-on-accent' : 'bg-brand-soft text-brand-ink',
+                i === 0 ? 'bg-gold text-on-gold' : 'bg-brand-soft text-brand-ink',
               ]}>
               <Icon name={link.icon} size={22} />
             </span>
@@ -37,7 +37,7 @@ const { links, title = 'Brze poveznice' } = Astro.props;
                 {link.label}
                 <Icon name="ArrowRight" size={18} class="shrink-0 transition-transform group-hover:translate-x-1" />
               </span>
-              <span class:list={['mt-0.5 block text-[0.95rem]', i === 0 ? 'text-on-brand/90' : 'text-muted']}>{link.text}</span>
+              <span class:list={['mt-0.5 block text-[0.95rem]', i === 0 ? 'text-on-brand' : 'text-muted']}>{link.text}</span>
             </span>
           </a>
         </li>

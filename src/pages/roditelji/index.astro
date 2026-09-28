@@ -37,7 +37,7 @@ const services = [
 
   <section class="section" aria-labelledby="e-obrasci">
     <div class="container-site">
-      <SectionHeading id="e-obrasci" eyebrow="e-Obrasci" title="Riješite bez dolaska u vrtić" />
+      <SectionHeading id="e-obrasci" title="Riješite bez dolaska u vrtić" />
       <ul class="grid gap-4 md:grid-cols-[1.4fr_1fr] md:grid-rows-2">
         {
           services.map((s, i) => (
@@ -51,12 +51,12 @@ const services = [
                 <span
                   class:list={[
                     'grid h-12 w-12 place-items-center rounded-[var(--radius-control)]',
-                    s.primary ? 'bg-accent text-on-accent' : 'bg-brand-soft text-brand-ink',
+                    s.primary ? 'bg-gold text-on-gold' : 'bg-brand-soft text-brand-ink',
                   ]}>
                   <Icon name={s.icon} size={24} />
                 </span>
                 <span class:list={['font-heading font-semibold', s.primary ? 'text-2xl md:text-3xl' : 'text-xl']}>{s.title}</span>
-                <span class:list={[s.primary ? 'text-on-brand/90 md:text-lg' : 'text-muted']}>{s.text}</span>
+                <span class:list={[s.primary ? 'text-on-brand md:text-lg' : 'text-muted']}>{s.text}</span>
                 <span class="mt-auto inline-flex items-center gap-2 pt-2 font-heading font-semibold">
                   Otvori obrazac
                   <Icon name="ArrowRight" size={20} class="transition-transform group-hover:translate-x-1" />
@@ -104,12 +104,12 @@ const services = [
 
   <section class="section" aria-labelledby="savjeti">
     <div class="container-site">
-      <SectionHeading id="savjeti" eyebrow="Savjeti" title="Stručni tim odgovara" />
+      <SectionHeading id="savjeti" title="Stručni tim odgovara" />
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr]">
         {
           site.parents.tips.map((t, i) => (
             <figure
-              class:list={['rounded-[var(--radius-card)] border p-6', i === 0 ? 'border-accent bg-accent-soft' : 'border-line bg-surface']}
+              class:list={['rounded-[var(--radius-card)] border p-6', i === 0 ? 'border-gold bg-gold-soft' : 'border-line bg-surface']}
               data-reveal
               style={`--reveal-i:${i}`}>
               <blockquote>

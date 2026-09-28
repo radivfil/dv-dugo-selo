@@ -22,15 +22,15 @@ const mapLink = `https://www.openstreetmap.org/?mlat=${c.map.marker.split(',')[0
           <h2 class="text-xl text-on-brand">{site.legalName}</h2>
           <address class="mt-4 grid gap-3 not-italic">
             <p class="flex gap-3">
-              <Icon name="MapPin" size={22} class="mt-0.5 shrink-0 text-accent" />
+              <Icon name="MapPin" size={22} class="mt-0.5 shrink-0 text-gold" />
               <span>{c.address}<br />{c.postalCity}</span>
             </p>
             <a href={`tel:${c.phoneHref}`} class="flex min-h-11 items-center gap-3 text-lg font-semibold text-on-brand">
-              <Icon name="Phone" size={22} class="shrink-0 text-accent" />
+              <Icon name="Phone" size={22} class="shrink-0 text-gold" />
               {c.phone}
             </a>
             <a href={`mailto:${c.email}`} class="flex min-h-11 items-center gap-3 text-lg font-semibold break-all text-on-brand">
-              <Icon name="Mail" size={22} class="shrink-0 text-accent" />
+              <Icon name="Mail" size={22} class="shrink-0 text-gold" />
               {c.email}
             </a>
           </address>

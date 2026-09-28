@@ -19,11 +19,18 @@
   --color-brand-ink: var(--c-brandInk);
   --color-brand-soft: var(--c-brandSoft);
   --color-on-brand: var(--c-onBrand);
-  --color-accent: var(--c-accent);
-  --color-accent-strong: var(--c-accentStrong);
-  --color-accent-soft: var(--c-accentSoft);
-  --color-accent-ink: var(--c-accentInk);
-  --color-on-accent: var(--c-onAccent);
+  --color-gold: var(--c-gold);
+  --color-gold-strong: var(--c-goldStrong);
+  --color-gold-soft: var(--c-goldSoft);
+  --color-gold-ink: var(--c-goldInk);
+  --color-on-gold: var(--c-onGold);
+  --color-coral: var(--c-coral);
+  --color-coral-soft: var(--c-coralSoft);
+  --color-coral-ink: var(--c-coralInk);
+  --color-on-coral: var(--c-onCoral);
+  --color-wash-blue: var(--c-washBlue);
+  --color-wash-mint: var(--c-washMint);
+  --color-wash-cream: var(--c-washCream);
   --color-success: var(--c-success);
   --color-success-soft: var(--c-successSoft);
   --color-danger: var(--c-danger);
@@ -46,6 +53,9 @@
     color-scheme: light dark;
     -webkit-text-size-adjust: 100%;
     scroll-padding-top: 6rem;
+    /* bez odgode od 300 ms na dodir i bez sivog bljeska pri dodiru */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: color-mix(in srgb, var(--c-brand) 18%, transparent);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -112,15 +122,15 @@
     border-radius: 4px;
   }
   .on-brand :focus-visible {
-    outline-color: var(--c-accent);
+    outline-color: var(--c-focusOnBrand);
   }
   :focus:not(:focus-visible) {
     outline: none;
   }
 
   ::selection {
-    background: var(--c-accent);
-    color: var(--c-onAccent);
+    background: var(--c-gold);
+    color: var(--c-onGold);
   }
 
   img,
@@ -192,6 +202,12 @@
     margin-top: 0.35em;
   }
 
+  /* brojke i datumi u tablicama poravnati po širini znamenke */
+  table time,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
   .card {
     background: var(--c-surface);
     border: 1px solid var(--c-line);
@@ -237,12 +253,13 @@
   .btn:hover svg.btn-arrow {
     transform: translateX(3px);
   }
-  .btn-accent {
-    background: var(--c-accent);
-    color: var(--c-onAccent);
+  /* CTA gumb: zlatna iz grba */
+  .btn-cta {
+    background: var(--c-gold);
+    color: var(--c-onGold);
   }
-  .btn-accent:hover {
-    background: var(--c-accentStrong);
+  .btn-cta:hover {
+    background: var(--c-goldStrong);
   }
   .btn-brand {
     background: var(--c-brand);

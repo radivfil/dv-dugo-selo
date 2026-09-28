@@ -20,11 +20,11 @@ const { variant = 'full', inverse = false, class: className } = Astro.props;
 <span class:list={['inline-flex min-w-0 items-center gap-3', className]}>
   <svg viewBox="0 0 48 48" width="48" height="48" class="h-11 w-11 shrink-0 sm:h-12 sm:w-12" aria-hidden="true">
     <rect width="48" height="48" rx="14" fill={inverse ? 'var(--c-onBrand)' : 'var(--c-brand)'}></rect>
-    <circle cx="38" cy="10" r="9" fill="var(--c-accent)"></circle>
+    <circle cx="38" cy="10" r="9" fill="var(--c-gold)"></circle>
     <path
       d="M24 20c0-4 2.5-6.5 6.5-6.8C30.2 17.2 27.8 19.6 24 20Zm0 0c0-3.2-2-5.3-5.2-5.5C19 17.7 21 19.8 24 20Zm0 0v3"
       fill="none"
-      stroke="var(--c-accent)"
+      stroke="var(--c-gold)"
       stroke-width="1.8"
       stroke-linecap="round"
       stroke-linejoin="round"></path>
@@ -42,7 +42,7 @@ const { variant = 'full', inverse = false, class: className } = Astro.props;
   {
     variant === 'full' && (
       <span class="flex min-w-0 flex-col leading-tight">
-        <span class:list={['font-heading text-[0.8rem] font-semibold tracking-wide uppercase', inverse ? 'text-on-brand/85' : 'text-muted']}>
+        <span class:list={['font-heading text-[0.8rem] font-semibold tracking-wide uppercase', inverse ? 'text-on-brand' : 'text-muted']}>
           {site.logoText.top}
         </span>
         <span class:list={['font-heading text-lg font-bold lg:whitespace-nowrap', inverse ? 'text-on-brand' : 'text-brand-ink']}>

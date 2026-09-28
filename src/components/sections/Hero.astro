@@ -30,14 +30,14 @@ interface Props {
 const { eyebrow, title, text, primaryCta, secondaryCta, image, imageAlt, badge, facts = [] } = Astro.props;
 ---
 
-<section class="hero relative overflow-hidden" aria-labelledby="hero-naslov">
+<section class="hero relative overflow-hidden bg-wash-blue" aria-labelledby="hero-naslov">
   <div class="container-site grid items-center gap-10 pt-10 pb-16 md:pt-14 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pb-24">
     <div class="relative z-10">
       {eyebrow && <p class="eyebrow mb-4" data-reveal>{eyebrow}</p>}
       <h1 id="hero-naslov" class="max-w-[20ch]" data-reveal style="--reveal-i:1">{title}</h1>
       <p class="lead mt-5" data-reveal style="--reveal-i:2">{text}</p>
       <div class="mt-8 flex flex-col gap-3 min-[26rem]:flex-row min-[26rem]:flex-wrap" data-reveal style="--reveal-i:3">
-        <a href={primaryCta.href} class="btn btn-accent">
+        <a href={primaryCta.href} class="btn btn-cta">
           {primaryCta.label}
           <Icon name="ArrowRight" size={20} class="btn-arrow" />
         </a>
@@ -48,7 +48,7 @@ const { eyebrow, title, text, primaryCta, secondaryCta, image, imageAlt, badge, 
 
     <div class="relative w-full max-w-lg justify-self-center lg:max-w-none" data-reveal style="--reveal-i:2">
       <!-- Ravno zlatno "sunce" iza fotografije: isti motiv kao u logotipu -->
-      <div class="absolute -top-8 -right-10 h-40 w-40 rounded-full bg-accent sm:h-52 sm:w-52" aria-hidden="true"></div>
+      <div class="absolute -top-8 -right-10 h-40 w-40 rounded-full bg-gold sm:h-52 sm:w-52" aria-hidden="true"></div>
       <Photo src={image} alt={imageAlt} ratio="4 / 3.4" eager class="relative" />
       {
         facts.length > 0 && (

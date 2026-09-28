@@ -21,6 +21,7 @@ export interface Location {
   groups: string;
   description: string;
   mapQuery: string;
+  image?: string;
 }
 
 export interface Program {
@@ -34,7 +35,8 @@ export interface Program {
   size?: 'wide' | 'tall' | 'normal';
   /** Ton pločice: 'brand' (plava), 'accent' (svijetlo zlatna) ili zadano neutralna. */
   tone?: 'brand' | 'accent';
-  /** Pločica s fotografijom (samo za 'tall') */
+  /** Fotografija na pločici */
+  image?: string;
   imageAlt?: string;
   category: 'jaslice' | 'vrtic' | 'predskola' | 'posebni';
 }
@@ -61,47 +63,68 @@ export const site = {
   locale: 'hr_HR',
 
   // --- Boje (tokeni). Ravne boje, bez gradijenata. -----------------
-  // Svaki par tekst/pozadina ima kontrast najmanje 4.5:1.
+  // Uloge:
+  //   brand = identitet (plohe, zaglavlje, podnožje, poveznice)
+  //   gold  = poziv na akciju (CTA gumbi) i status iz grba (Eko oznaka, sunce u logotipu)
+  //   coral = sitni topli naglasci (brojevi koraka, ikone u karticama, crta ispod aktivne stavke)
+  //   wash* = blijedo obojene plohe sekcija; stranica se izmjenjuje, ne ostaje prazno bijela
+  // Svaki par tekst/podloga provjeren je na kontrast (min. 4.5:1, fokus prsten min. 3:1).
   colors: {
     light: {
-      bg: '#FAF7F0', // krem pozadina
+      bg: '#FAFBFC',
       surface: '#FFFFFF',
-      surface2: '#F0EDE4', // svijetlo srebrna
-      line: '#D9D4C7',
+      surface2: '#EEF5FD',
+      washBlue: '#EEF5FD',
+      washMint: '#EAF7F1',
+      washCream: '#FDF3E0',
+      line: '#DCE6F0',
       ink: '#17213A',
       muted: '#4A5468',
-      brand: '#1D3F85', // heraldička plava
-      brandStrong: '#142E63',
-      brandInk: '#1D3F85', // plava kao boja teksta/poveznica
-      brandSoft: '#E4EAF6',
+      brand: '#0E76C0',
+      brandStrong: '#0B5E9A',
+      brandInk: '#0A66AC', // plava kao tekst: 5.44:1 i na najsvjetlijoj plohi
+      brandSoft: '#DCEDFA',
       onBrand: '#FFFFFF',
-      accent: '#E8B23A', // zlatno-žuta, samo za CTA i naglaske
-      accentStrong: '#D49C1F',
-      accentSoft: '#FAEFD2',
-      accentInk: '#7A5200',
-      onAccent: '#17213A',
+      focusOnBrand: '#FFD980', // fokus prsten na plavoj plohi: 3.54:1
+      gold: '#E8B23A',
+      goldStrong: '#D49C1F',
+      goldSoft: '#FDF0D3',
+      goldInk: '#7A5200',
+      onGold: '#17213A',
+      coral: '#C2410C',
+      coralSoft: '#FBE7DC',
+      coralInk: '#9A3412',
+      onCoral: '#FFFFFF',
       success: '#1E6B3A',
       successSoft: '#E3F2E8',
       danger: '#A3261B',
       dangerSoft: '#FBE7E4',
     },
     dark: {
-      bg: '#0E1729',
-      surface: '#152139',
-      surface2: '#1B2945',
-      line: '#33456B',
+      bg: '#0F1A2B',
+      surface: '#17233A',
+      surface2: '#1B2B44',
+      washBlue: '#152741',
+      washMint: '#122E2B',
+      washCream: '#2C2415',
+      line: '#33486B',
       ink: '#EEF1F6',
       muted: '#B4BED1',
-      brand: '#22448F', // zlatni tekst na plavoj: kontrast 4.8:1
-      brandStrong: '#2B52A6',
-      brandInk: '#AFC5F5',
-      brandSoft: '#1B2C52',
+      brand: '#1A75B8', // bijeli tekst na njoj: 4.91:1
+      brandStrong: '#1E86D0',
+      brandInk: '#7FC2F0',
+      brandSoft: '#15304D',
       onBrand: '#FFFFFF',
-      accent: '#E8B23A',
-      accentStrong: '#F0C257',
-      accentSoft: '#3A2E12',
-      accentInk: '#F2CC74',
-      onAccent: '#17213A',
+      focusOnBrand: '#FFD980',
+      gold: '#E8B23A',
+      goldStrong: '#F0C257',
+      goldSoft: '#3A2E12',
+      goldInk: '#F2CC74',
+      onGold: '#17213A',
+      coral: '#F0763C',
+      coralSoft: '#3A1E11',
+      coralInk: '#FFA97A',
+      onCoral: '#17213A',
       success: '#7FD39B',
       successSoft: '#143222',
       danger: '#FF9C90',
@@ -146,6 +169,7 @@ export const site = {
       description:
         'Sjedište vrtića i uprave, uz perivoj u samom središtu grada. Ovdje su stručni suradnici, kuhinja iz koje stižu obroci za sve objekte i najveće dvorište s eko vrtom.',
       mapQuery: 'Perivoj Ivane Brlić Mažuranić 2, Dugo Selo',
+      image: '/images/placeholder/ucionica-1.jpg',
     },
     {
       id: 'podrucni-1',
@@ -157,6 +181,7 @@ export const site = {
       description:
         'Manji objekt u mirnom stambenom dijelu grada, s vlastitim igralištem. Pogodan za djecu koja se bolje snalaze u manjoj zajednici.',
       mapQuery: 'Kozinščak, Dugo Selo',
+      image: '/images/placeholder/igraliste-2.jpg',
     },
     {
       id: 'podrucni-2',
@@ -168,6 +193,7 @@ export const site = {
       description:
         'Objekt prilagođen najmlađima: prostrane sobe za spavanje, prilaz bez stepenica i zasebno jasličko dvorište.',
       mapQuery: 'Ostrna, Dugo Selo',
+      image: '/images/placeholder/ucionica-2.jpg',
     },
   ] satisfies Location[],
 
@@ -192,7 +218,8 @@ export const site = {
     text: 'Više od 500 djece iz Dugog Sela svaki dan provede u našim skupinama, u tri objekta. Svaka skupina ima dvorište i vrt, a svaki dan počinje obrokom iz naše kuhinje.', // TODO: provjeriti broj djece
     primaryCta: { label: 'Upisi u vrtić', href: '/upisi' },
     secondaryCta: { label: 'Prijava izostanka', href: '/roditelji/prijava-izostanka' },
-    imageAlt: 'Djeca s odgojiteljicom sade začinsko bilje u vrtićkom eko vrtu',
+    image: '/images/placeholder/igra-2.jpg',
+    imageAlt: 'Dijete slaže drvene kocke na tepihu u svijetloj sobi vrtića',
   },
 
   badge: {
@@ -233,9 +260,10 @@ export const site = {
       title: 'Jaslice',
       age: '1 – 3 godine',
       icon: 'Baby',
+      image: '/images/placeholder/ucionica-3.jpg',
+      imageAlt: 'Dijete slaže papirnate zvjezdice na tepihu u jasličkoj sobi',
       category: 'jaslice',
       size: 'tall',
-      imageAlt: 'Odgojiteljica čita slikovnicu dvoje jasličke djece na tepihu',
       summary: 'Mirne sobe, stalni odgojitelji i puno vremena za prilagodbu. Prvih dana roditelj može ostati s djetetom u skupini.',
       details: ['Mlađa jaslička skupina (1 – 2 godine)', 'Starija jaslička skupina (2 – 3 godine)', 'Postupna prilagodba uz roditelja'],
     },
@@ -244,6 +272,8 @@ export const site = {
       title: 'Vrtićke skupine',
       age: '3 – 6 godina',
       icon: 'Palette',
+      image: '/images/placeholder/igra-1.jpg',
+      imageAlt: 'Dvoje djece igra se liječnika za stolom',
       category: 'vrtic',
       size: 'wide',
       tone: 'brand',
@@ -255,6 +285,8 @@ export const site = {
       title: 'Program predškole',
       age: 'godina prije škole',
       icon: 'BookOpen',
+      image: '/images/placeholder/slikanje-3.jpg',
+      imageAlt: 'Djeca za stolom crtaju i slikaju vodenim bojama',
       category: 'predskola',
       summary: 'Obvezni program za djecu u godini prije polaska u osnovnu školu, i za djecu koja ne pohađaju vrtić.',
       details: ['250 sati godišnje', 'Poslijepodnevne skupine za djecu izvan vrtića'],
@@ -264,6 +296,8 @@ export const site = {
       title: 'Eko program',
       age: 'sve skupine',
       icon: 'Leaf',
+      image: '/images/placeholder/igraliste-1.jpg',
+      imageAlt: 'Djeca slažu drvene kocke u dvorištu vrtića',
       category: 'posebni',
       size: 'wide',
       tone: 'accent',
@@ -275,6 +309,8 @@ export const site = {
       title: 'Rano učenje engleskog',
       age: '4 – 6 godina',
       icon: 'MessagesSquare',
+      image: '/images/placeholder/igra-3.jpg',
+      imageAlt: 'Djeca i odgojiteljica razgovaraju za stolom',
       category: 'posebni',
       summary: 'Kraći program kroz pjesmu, igru i priču, dvaput tjedno u poslijepodnevnim satima.',
       details: ['Dvaput tjedno po 45 minuta'],
@@ -284,6 +320,8 @@ export const site = {
       title: 'Sportski program',
       age: '4 – 6 godina',
       icon: 'Bike',
+      image: '/images/placeholder/igraliste-3.jpg',
+      imageAlt: 'Djeca voze romobile po vanjskoj stazi',
       category: 'posebni',
       summary: 'Poligoni, igre loptom i vožnja bicikla na vrtićkom igralištu, uz kineziologa.',
       details: ['Jednom tjedno, u dvorani ili vani'],

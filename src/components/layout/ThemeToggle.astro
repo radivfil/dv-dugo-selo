@@ -1,0 +1,65 @@
+---
+/**
+ * ThemeToggle — prebacivanje svijetle i tamne teme.
+ * Zadano prati postavku sustava (prefers-color-scheme); ručni odabir pamti se u localStorage
+ * pod ključem "tema" i primjenjuje se prije iscrtavanja (skripta u BaseLayoutu), pa nema bljeska.
+ * Gumb je obični <button> s aria-pressed, pa radi i tipkovnicom i s čitačem zaslona.
+ */
+import Icon from '../ui/Icon.astro';
+---
+
+<button
+  type="button"
+  class="theme-toggle btn btn-outline h-12 w-12 shrink-0 !p-0"
+  data-theme-toggle
+  aria-pressed="false"
+  aria-label="Tamna tema">
+  <span class="icon-light"><Icon name="Sun" size={22} /></span>
+  <span class="icon-dark hidden"><Icon name="Moon" size={22} /></span>
+</button>
+
+<script>
+  /** Postavlja temu, pamti izbor i osvježava stanje gumba. */
+  function initThemeToggle() {
+    const root = document.documentElement;
+    const buttons = document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]');
+    if (!buttons.length) return;
+
+    const isDark = () =>
+      root.dataset.theme ? root.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    const sync = () => {
+      const dark = isDark();
+      buttons.forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(dark));
+        btn.setAttribute('aria-label', dark ? 'Svijetla tema' : 'Tamna tema');
+        btn.querySelector('.icon-light')!.classList.toggle('hidden', dark);
+        btn.querySelector('.icon-dark')!.classList.toggle('hidden', !dark);
+      });
+    };
+
+    buttons.forEach((btn) => {
+      if (btn.dataset.ready) return;
+      btn.dataset.ready = 'true';
+      btn.addEventListener('click', () => {
+        const next = isDark() ? 'light' : 'dark';
+        root.dataset.theme = next;
+        try {
+          localStorage.setItem('tema', next);
+        } catch {
+          /* privatni način: tema vrijedi do zatvaranja kartice */
+        }
+        sync();
+      });
+    });
+
+    // Ako korisnik nije ručno birao, prati promjenu postavke sustava
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (!root.dataset.theme) sync();
+    });
+
+    sync();
+  }
+
+  document.addEventListener('astro:page-load', initThemeToggle);
+</script>

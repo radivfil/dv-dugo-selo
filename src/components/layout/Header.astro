@@ -8,6 +8,7 @@
 import { site } from '../../config/site';
 import Logo from '../ui/Logo.astro';
 import Icon from '../ui/Icon.astro';
+import ThemeToggle from './ThemeToggle.astro';
 
 // Putanja bez podadrese (base) i završne kose crte, za usporedbu s href-ovima iz site.nav
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -32,9 +33,9 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
                 title={item.short !== item.label ? item.label : undefined}
                 class:list={[
                   'nav-link relative inline-flex min-h-11 items-center rounded-[var(--radius-control)] px-2 font-heading text-[0.9rem] font-semibold whitespace-nowrap no-underline transition-colors xl:px-3 xl:text-[0.95rem]',
-                  item.highlight ? 'bg-accent-soft text-ink hover:bg-accent' : 'text-ink hover:bg-brand-soft hover:text-brand-ink',
+                  item.highlight ? 'bg-gold-soft text-ink hover:bg-gold' : 'text-ink hover:bg-brand-soft hover:text-brand-ink',
                 ]}>
-                {item.highlight && <Icon name="Heart" size={16} class="mr-1.5 text-accent-ink" />}
+                {item.highlight && <Icon name="Heart" size={16} class="mr-1.5 text-gold-ink" />}
                 {item.short}
               </a>
             </li>
@@ -43,7 +44,9 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
       </ul>
     </nav>
 
-    <button
+    <div class="flex items-center gap-2">
+      <ThemeToggle />
+      <button
       type="button"
       class="menu-toggle btn btn-outline h-12 w-12 shrink-0 !p-0 lg:hidden"
       aria-expanded="false"
@@ -51,7 +54,8 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
       <span class="icon-open"><Icon name="Menu" size={24} /></span>
       <span class="icon-close hidden"><Icon name="X" size={24} /></span>
       <span class="visually-hidden menu-label">Otvori izbornik</span>
-    </button>
+      </button>
+    </div>
   </div>
 
   <div id="mobilni-izbornik" class="mobile-panel fixed inset-x-0 top-[var(--header-h,4.5rem)] bottom-0 hidden overflow-y-auto border-t border-line bg-bg lg:hidden">
@@ -65,7 +69,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
                 aria-current={isActive(item.href) ? 'page' : undefined}
                 class:list={[
                   'flex min-h-14 items-center justify-between gap-3 rounded-[var(--radius-control)] border px-4 py-3 font-heading text-lg font-semibold no-underline',
-                  item.highlight ? 'border-accent bg-accent-soft text-ink' : 'border-line bg-surface text-ink',
+                  item.highlight ? 'border-gold bg-gold-soft text-ink' : 'border-line bg-surface text-ink',
                 ]}>
                 <span>{item.label}</span>
                 <Icon name="ChevronRight" size={20} class="shrink-0 text-muted" />
@@ -89,7 +93,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
 </header>
 
 <style>
-  .nav-link[aria-current='page']:not(.bg-accent-soft) {
+  .nav-link[aria-current='page']:not(.bg-gold-soft) {
     color: var(--c-brandInk);
     background: var(--c-brandSoft);
   }

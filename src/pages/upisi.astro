@@ -16,7 +16,7 @@ const docs = (await getCollection('dokumenti', (d) => d.data.category === 'Upisi
 <BaseLayout title="Upisi i ispisi" description={site.enrollment.intro}>
   <PageHeader title="Upisi i ispisi" eyebrow="Upis i ispis djeteta" lead={site.enrollment.intro}>
     <div class="mt-7 flex flex-col gap-3 min-[26rem]:flex-row min-[26rem]:flex-wrap">
-      <a href={site.enrollment.url} class="btn btn-accent" target="_blank" rel="noopener">
+      <a href={site.enrollment.url} class="btn btn-cta" target="_blank" rel="noopener">
         Otvori e-Upise
         <Icon name="ExternalLink" size={20} />
         <span class="visually-hidden">(otvara se u novom prozoru)</span>
@@ -28,12 +28,12 @@ const docs = (await getCollection('dokumenti', (d) => d.data.category === 'Upisi
 
   <section class="section" aria-labelledby="koraci">
     <div class="container-site">
-      <SectionHeading id="koraci" eyebrow="Postupak" title="Četiri koraka do upisa" />
+      <SectionHeading id="koraci" title="Četiri koraka do upisa" />
       <ol class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {
           site.enrollment.steps.map((s, i) => (
             <li class="card relative p-6" data-reveal style={`--reveal-i:${i}`}>
-              <span class="font-heading text-4xl font-bold text-accent-ink" aria-hidden="true">
+              <span class="font-heading text-4xl font-bold text-brand-ink" aria-hidden="true">
                 {String(i + 1).padStart(2, '0')}
               </span>
               <h3 class="mt-3">
@@ -51,7 +51,7 @@ const docs = (await getCollection('dokumenti', (d) => d.data.category === 'Upisi
   <section class="section bg-surface-2" aria-labelledby="prednost">
     <div class="container-site grid gap-10 lg:grid-cols-2">
       <div>
-        <SectionHeading id="prednost" eyebrow="Prednost pri upisu" title="Tko ima prednost" />
+        <SectionHeading id="prednost" title="Tko ima prednost" />
         <div class="prose-site" data-reveal>
           <p>{site.enrollment.priorityIntro}</p>
           <ul>
@@ -114,7 +114,7 @@ const docs = (await getCollection('dokumenti', (d) => d.data.category === 'Upisi
 
   <section class="section bg-surface-2" aria-labelledby="dokumenti-upisi">
     <div class="container-site">
-      <SectionHeading id="dokumenti-upisi" eyebrow="Dokumenti" title="Natječaj i obavijesti" />
+      <SectionHeading id="dokumenti-upisi" title="Natječaj i obavijesti" />
       <ul class="grid gap-3">
         {
           docs.map((d) => (
